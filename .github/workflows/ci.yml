@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  detect-app-changes:
+    name: Detect changed apps
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.detect.outputs.apps }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed app directories
+        id: detect
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            BASE_SHA="${{ github.event.before }}"
+          else
+            BASE_SHA="${{ github.sha }}~1"
+          fi
+
+          if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BASE_SHA" ]; then
+            BASE_SHA="${{ github.sha }}~1"
+          fi
+
+          mapfile -t changed_apps < <(git diff --name-only "$BASE_SHA" "${{ github.sha }}" |
+            awk -F/ '$1 == "apps" {print $2}' |
+            sort -u)
+
+          all_apps=()
+          for app_dir in apps/*/; do
+            [ -d "$app_dir" ] || continue
+            all_apps+=("$(basename "$app_dir")")
+          done
+
+          if [ "${#changed_apps[@]}" -eq 0 ]; then
+            changed_apps=("${all_apps[@]}")
+          fi
+
+          if [ "${#changed_apps[@]}" -eq 0 ]; then
+            echo "apps=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          changed_json=$(printf '%s\n' "${changed_apps[@]}" | jq -R -s 'split("\n")[:-1]')
+          echo "apps=$changed_json" >> "$GITHUB_OUTPUT"
+
+  build-changed-apps:
+    name: Build changed apps
+    needs: detect-app-changes
+    if: needs.detect-app-changes.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJson(needs.detect-app-changes.outputs.apps) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+
+      - name: Build package
+        run: |
+          nix build .#packages.x86_64-linux.${{ matrix.app }} --no-link
+          nix build .#checks.x86_64-linux.${{ matrix.app }}-build --no-link

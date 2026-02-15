@@ -1,0 +1,12 @@
+# Nix build artifacts
+result
+result-*
+*.drv
+
+# Nix shell / direnv state
+.direnv/
+.envrc
+
+# Nix cache and temp state
+.nix-gc-roots/
+.nix-defexpr/

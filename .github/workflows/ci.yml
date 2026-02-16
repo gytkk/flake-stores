@@ -30,13 +30,22 @@ jobs:
             BASE_SHA="${{ github.sha }}~1"
           fi
 
+          # Handle initial push (no parent commit) or empty before SHA
           if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BASE_SHA" ]; then
-            BASE_SHA="${{ github.sha }}~1"
+            if git rev-parse "${{ github.sha }}~1" >/dev/null 2>&1; then
+              BASE_SHA="${{ github.sha }}~1"
+            else
+              # Initial commit — no parent exists, treat all apps as changed
+              BASE_SHA=""
+            fi
           fi
 
-          mapfile -t changed_apps < <(git diff --name-only "$BASE_SHA" "${{ github.sha }}" |
-            awk -F/ '$1 == "apps" {print $2}' |
-            sort -u)
+          changed_apps=()
+          if [ -n "$BASE_SHA" ]; then
+            mapfile -t changed_apps < <(git diff --name-only "$BASE_SHA" "${{ github.sha }}" |
+              awk -F/ '$1 == "apps" {print $2}' |
+              sort -u)
+          fi
 
           all_apps=()
           for app_dir in apps/*/; do
@@ -53,7 +62,7 @@ jobs:
             exit 0
           fi
 
-          changed_json=$(printf '%s\n' "${changed_apps[@]}" | jq -R -s 'split("\n")[:-1]')
+          changed_json=$(printf '%s\n' "${changed_apps[@]}" | jq -Rc -s 'split("\n")[:-1]')
           echo "apps=$changed_json" >> "$GITHUB_OUTPUT"
 
   build-changed-apps:

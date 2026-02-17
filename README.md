@@ -19,6 +19,12 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 └── README.md
 ```
 
+## App versions
+
+| App | Version |
+|-----|---------|
+| opencode | 1.2.6 |
+
 ## Build entrypoints
 
 - `nix build .#packages.<system>.opencode`

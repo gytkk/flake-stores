@@ -43,7 +43,7 @@ for system in aarch64-darwin x86_64-darwin x86_64-linux aarch64-linux; do
 
   echo "Fetching hash for $system..."
   nix_output=$(nix build --impure --no-link --expr "
-    (import <nixpkgs> {}).fetchzip {
+    (builtins.getFlake \"nixpkgs\").legacyPackages.x86_64-linux.fetchzip {
       url = \"$url\";
       hash = \"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\";
       stripRoot = false;

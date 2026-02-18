@@ -27,7 +27,7 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 
 | App | Version |
 |-----|---------|
-| agent-browser | 0.10.0 |
+| agent-browser | 0.11.1 |
 | opencode | 1.2.6 |
 
 ## Build entrypoints

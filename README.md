@@ -8,15 +8,12 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 .
 ├── apps
 │   ├── agent-browser
-│   │   ├── auto-update
 │   │   ├── package.nix
 │   │   └── update.sh
 │   ├── claude-code
-│   │   ├── auto-update
 │   │   ├── package.nix
 │   │   └── update.sh
 │   └── opencode
-│       ├── auto-update
 │       ├── package.nix
 │       └── update.sh
 ├── .github/workflows
@@ -26,6 +23,7 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 ├── scripts
 │   ├── sync-readme-versions.sh
 │   └── update-all.sh
+├── settings.json
 └── README.md
 ```
 
@@ -50,8 +48,9 @@ To add a new app package:
 2. Use `callPackage` arguments available from nixpkgs (`stdenvNoCC`, `fetchzip`, etc.).
 3. Ensure the package path creates a `meta.mainProgram` if the package should be run via `nix run`.
 4. Add `apps/<app-name>/update.sh` if you want automatic version updates.
-5. Add `apps/<app-name>/auto-update` containing `true` or `false` to control automatic updates (defaults to `true` if absent).
-6. Optionally export additional metadata files later if needed.
+5. Optionally export additional metadata files later if needed.
+
+To disable automatic updates for an app, add its name to the `update.deny` list in `settings.json`.
 
 The flake discovers app directories automatically, so no extra flake changes are required.
 

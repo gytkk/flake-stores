@@ -20,6 +20,12 @@ for app_dir in "$APPS_DIR"/*; do
     continue
   fi
 
+  auto_update_flag="$app_dir/auto-update"
+  if [ -f "$auto_update_flag" ] && [ "$(cat "$auto_update_flag" | tr -d '[:space:]')" = "false" ]; then
+    echo "Skipping $app_name: auto-update disabled"
+    continue
+  fi
+
   echo "Running $app_name update"
   "$update_script"
 done

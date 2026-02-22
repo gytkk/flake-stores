@@ -19,8 +19,10 @@
 
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f system);
 
+      pkgsFor = system: import nixpkgs { inherit system; config.allowUnfree = true; };
+
       packageFor =
-        system: name: (nixpkgs.legacyPackages.${system}.callPackage ./apps/${name}/package.nix { });
+        system: name: ((pkgsFor system).callPackage ./apps/${name}/package.nix { });
 
       mkPackages =
         system:
@@ -92,7 +94,7 @@
       legacyPackages = forEachSystem (
         system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = pkgsFor system;
         in
         builtins.listToAttrs (
           map (name: {

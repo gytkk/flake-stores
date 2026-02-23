@@ -21,48 +21,21 @@ fi
 
 echo "Updating $CURRENT -> $LATEST"
 
-declare -A PLATFORM_SUFFIX=(
-  ["aarch64-darwin"]="darwin-arm64"
-  ["x86_64-darwin"]="darwin-x64"
-  ["x86_64-linux"]="linux-x64"
-  ["aarch64-linux"]="linux-arm64"
-)
+URL="https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${LATEST}.tgz"
 
-BASE_URL="https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases"
+echo "Fetching hash for npm tarball..."
+sri_hash=$(nix store prefetch-file --json "$URL" | jq -r '.hash')
 
-declare -A HASHES
-for system in aarch64-darwin x86_64-darwin x86_64-linux aarch64-linux; do
-  suffix="${PLATFORM_SUFFIX[$system]}"
-  url="${BASE_URL}/${LATEST}/${suffix}/claude"
+if [ -z "$sri_hash" ]; then
+  echo "ERROR: Failed to fetch hash for npm tarball"
+  exit 1
+fi
 
-  echo "Fetching hash for $system..."
-  nix_output=$(nix build --impure --no-link --expr "
-    (builtins.getFlake \"nixpkgs\").legacyPackages.x86_64-linux.fetchurl {
-      url = \"$url\";
-      hash = \"sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\";
-    }
-  " 2>&1 || true)
+echo "  hash: $sri_hash"
 
-  sri_hash=$(echo "$nix_output" | sed -n 's/.*got: *\(sha256-[A-Za-z0-9+/]*=*\).*/\1/p')
-
-  if [ -z "$sri_hash" ]; then
-    echo "ERROR: Failed to fetch hash for $system"
-    echo "$nix_output"
-    exit 1
-  fi
-
-  HASHES[$system]="$sri_hash"
-  echo "  $system: $sri_hash"
-done
+old_hash=$(grep 'hash = ' "$PACKAGE_NIX" | head -1 | sed 's/.*"\(.*\)".*/\1/')
 
 sed -i "s/version = \"$CURRENT\"/version = \"$LATEST\"/" "$PACKAGE_NIX"
-
-for system in aarch64-darwin x86_64-darwin x86_64-linux aarch64-linux; do
-  old_hash=$(grep -A3 "\"$system\"" "$PACKAGE_NIX" | grep 'hash = ' | sed 's/.*"\(.*\)".*/\1/')
-  new_hash="${HASHES[$system]}"
-  if [ -n "$old_hash" ] && [ -n "$new_hash" ]; then
-    sed -i "s|$old_hash|$new_hash|" "$PACKAGE_NIX"
-  fi
-done
+sed -i "s|$old_hash|$sri_hash|" "$PACKAGE_NIX"
 
 echo "Updated package.nix to version $LATEST"

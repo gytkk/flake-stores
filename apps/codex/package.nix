@@ -3,8 +3,11 @@
   stdenv,
   stdenvNoCC,
   fetchurl,
-  patchelf,
+  autoPatchelfHook,
   makeWrapper,
+  libcap,
+  openssl,
+  zlib,
 }:
 
 let
@@ -47,10 +50,15 @@ stdenvNoCC.mkDerivation {
 
   dontUnpack = true;
 
-  nativeBuildInputs = [ makeWrapper ] ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [ patchelf ];
+  nativeBuildInputs = [ makeWrapper ] ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [ autoPatchelfHook ];
 
-  dontAutoPatchelf = true;
-  dontPatchELF = true;
+  buildInputs = lib.optionals stdenvNoCC.hostPlatform.isLinux [
+    libcap
+    openssl
+    zlib
+    stdenv.cc.cc.lib
+  ];
+
   dontStrip = true;
 
   installPhase = ''
@@ -58,11 +66,6 @@ stdenvNoCC.mkDerivation {
     mkdir -p $out/bin
     tar xzf ${src} -C $out/bin
     mv $out/bin/codex-${platform.target} $out/bin/codex
-  ''
-  + lib.optionalString stdenvNoCC.hostPlatform.isLinux ''
-    patchelf --set-interpreter "$(cat ${stdenv.cc}/nix-support/dynamic-linker)" $out/bin/codex
-  ''
-  + ''
     runHook postInstall
   '';
 

@@ -143,12 +143,12 @@ generate_slug() {
 
 # ============================================================
 # save_debate — Save final debate artifact
-# Usage: save_debate <topic> <rounds> <decision> <confidence> <summary_md> <transcript_md> [<verdict_json>]
+# Usage: save_debate <topic> <rounds> <outcome> <confidence> <summary_md> <transcript_md> [<verdict_json>]
 # ============================================================
 save_debate() {
   local topic="$1"
   local rounds="$2"
-  local decision="${3:-unknown}"
+  local outcome="${3:-unknown}"
   local confidence="${4:-0}"
   local summary_md="$5"
   local transcript_md="$6"
@@ -169,7 +169,7 @@ save_debate() {
 topic: "${topic}"
 rounds: ${rounds}
 date: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-decision: ${decision}
+outcome: ${outcome}
 confidence: ${confidence}
 ---
 

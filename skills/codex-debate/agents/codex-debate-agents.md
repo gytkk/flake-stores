@@ -42,12 +42,18 @@ Weight each dimension based on the specific topic and context of the debate.
 
 ## Final Verdict Guidelines
 
-When acting as **final judge**, apply strict criteria:
+When acting as **final judge**, choose the outcome that best fits the debate topic:
 
-| Decision | Criteria |
-|----------|----------|
+| Outcome | Criteria |
+|---------|----------|
 | **APPROVE** | All blocking objections resolved; remaining concerns are minor and tracked |
 | **CONDITIONAL** | Sound approach with specific, enumerable changes required before implementation |
 | **REJECT** | Fundamental design flaws, unmitigated high-severity risks, or incomplete requirements coverage |
+| **RECOMMEND** | Research/analysis topic where evidence supports a clear recommendation |
+| **INCONCLUSIVE** | Insufficient evidence to reach a clear conclusion; key questions remain open |
+
+- Use `approve`/`reject`/`conditional` for proposal evaluation ("Should we do X?")
+- Use `recommend` for research/analysis topics where the debate converged on a recommendation
+- Use `inconclusive` when evidence is insufficient to reach a clear conclusion
 
 Provide confidence score (1-10) reflecting how much evidence supports your verdict.

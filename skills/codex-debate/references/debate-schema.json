@@ -5,15 +5,15 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "decision": {
+    "outcome": {
       "type": "string",
-      "enum": ["approve", "reject", "conditional"],
-      "description": "Final verdict on the proposal"
+      "enum": ["approve", "reject", "conditional", "recommend", "inconclusive"],
+      "description": "Verdict category: approve/reject/conditional for proposals; recommend for research/analysis conclusions; inconclusive when evidence is insufficient"
     },
-    "summary": {
+    "conclusion": {
       "type": "string",
       "maxLength": 200,
-      "description": "One-sentence summary of the decision"
+      "description": "One-sentence takeaway summarizing the verdict"
     },
     "rationale": {
       "type": "array",
@@ -23,7 +23,7 @@
       },
       "minItems": 3,
       "maxItems": 7,
-      "description": "Key reasons supporting the decision"
+      "description": "Key reasons supporting the conclusion"
     },
     "risks": {
       "type": "array",
@@ -58,13 +58,13 @@
       "maxItems": 10,
       "description": "Next action items as a checklist"
     },
-    "required_changes": {
+    "caveats": {
       "type": "array",
       "items": {
         "type": "string",
         "maxLength": 120
       },
-      "description": "Changes required before approval (only when decision is reject or conditional)"
+      "description": "Conditions, prerequisites, or required changes"
     },
     "confidence": {
       "type": "number",
@@ -82,5 +82,5 @@
       "description": "Questions that remain open after the debate"
     }
   },
-  "required": ["decision", "summary", "rationale", "risks", "actions", "confidence"]
+  "required": ["outcome", "conclusion", "rationale", "risks", "actions", "confidence"]
 }

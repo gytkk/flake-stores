@@ -87,7 +87,7 @@ R1 (Codex)   ─── Challenge: critique, risks, alternatives, score
        │
 R2 (Claude)  ─── Revision: accepted critiques, rebuttals, updated approach
        │
-R3 (Codex)   ─── Final verdict: APPROVE / REJECT / CONDITIONAL
+R3 (Codex)   ─── Final verdict: APPROVE / REJECT / CONDITIONAL / RECOMMEND / INCONCLUSIVE
        │
     Output    ─── Summary + transcript saved to .claude/debates/
 ```
@@ -115,9 +115,9 @@ based on the specific topic and context. See [`references/rubrics.md`](reference
 
 ```markdown
 # Debate Result: {topic}
-Decision: APPROVE | Confidence: 8/10
+Outcome: APPROVE | Confidence: 8/10
 
-## Recommended Decision
+## Conclusion
 ## Rationale (3-7 bullets)
 ## Risks & Mitigations (table)
 ## Next Actions (checklist)
@@ -127,7 +127,7 @@ Decision: APPROVE | Confidence: 8/10
 ### Artifact File
 
 Saved to `.claude/debates/YYYYMMDD-HHMM-slug.md` with:
-- YAML frontmatter (topic, rounds, date, decision, confidence)
+- YAML frontmatter (topic, rounds, date, outcome, confidence)
 - Full summary
 - Complete transcript (all rounds)
 - Raw verdict JSON
@@ -197,7 +197,7 @@ For full end-to-end testing with actual Codex model calls:
 4. Verify:
    - Round 0 (Claude) produces structured proposal
    - Round 1 (Codex) produces structured critique via MCP
-   - Summary is displayed with decision
+   - Summary is displayed with outcome
    - Artifact saved to `.claude/debates/`
 
 ## Configuration

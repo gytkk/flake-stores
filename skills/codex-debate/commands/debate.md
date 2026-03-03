@@ -250,7 +250,7 @@ IMPORTANT: Read `.claude/debates/tmp-{SESSION_ID}/transcript.md` FIRST.
 Respond with BOTH markdown and a JSON verdict block.
 Markdown:
 ## Round {N}: Final Verdict (Codex — Judge)
-### Decision: APPROVE | REJECT | CONDITIONAL
+### Outcome: APPROVE | REJECT | CONDITIONAL | RECOMMEND | INCONCLUSIVE
 ### Assessment
 [2–3 sentence final assessment referencing key debate points]
 ### Agreements
@@ -258,8 +258,13 @@ Markdown:
 ### Remaining Concerns
 [Issues not fully resolved]
 
+Choose outcome based on debate type:
+- approve/reject/conditional: for proposal evaluation (should we do X?)
+- recommend: for research/analysis topics where the debate converged on a recommendation
+- inconclusive: when evidence was insufficient to reach a clear conclusion
+
 Then output a JSON block fenced with ```json:
-{"decision":"approve|reject|conditional","summary":"≤200 chars","rationale":["3–7 bullets max 120 chars each"],"risks":[{"risk":"≤100","mitigation":"≤100","severity":"high|medium|low"}],"actions":["≤120 chars each, max 10"],"required_changes":["only if reject/conditional"],"confidence":1-10,"unresolved_questions":["≤120 chars, max 5"]}
+{"outcome":"approve|reject|conditional|recommend|inconclusive","conclusion":"≤200 chars one-sentence takeaway","rationale":["3–7 bullets max 120 chars each"],"risks":[{"risk":"≤100","mitigation":"≤100","severity":"high|medium|low"}],"actions":["≤120 chars each, max 10"],"caveats":["conditions/prerequisites/required changes, if any"],"confidence":1-10,"unresolved_questions":["≤120 chars, max 5"]}
 ```
 
 **`prompt`** — keep under 500 characters:
@@ -358,8 +363,8 @@ If the final Codex round included a JSON verdict block (between ` ```json ` and 
 extract and validate it against `references/debate-schema.json`:
 
 **Required fields** (validation checks):
-- `decision`: must be one of `"approve"`, `"reject"`, `"conditional"`
-- `summary`: string, max 200 chars
+- `outcome`: must be one of `"approve"`, `"reject"`, `"conditional"`, `"recommend"`, `"inconclusive"`
+- `conclusion`: string, max 200 chars
 - `rationale`: array of 3–7 strings
 - `risks`: array of objects with `risk`, `mitigation`, `severity` (high/medium/low)
 - `actions`: array of strings
@@ -370,9 +375,8 @@ extract and validate it against `references/debate-schema.json`:
 2. Fall back to synthesizing a verdict from the debate content
 
 **If no JSON was provided**, synthesize a verdict from the debate content:
-- Count accepted vs rejected criticisms
-- Assess overall proposal improvement trajectory
-- Make a judgment call: approve/reject/conditional
+- Assess overall debate trajectory and convergence
+- Determine outcome type: approve/reject/conditional for proposals; recommend for research/analysis; inconclusive if evidence is insufficient
 
 #### 8b. Console Summary
 
@@ -383,10 +387,10 @@ Output the following to the user:
 
 # Debate Result: {TOPIC}
 
-**Decision:** {APPROVE/REJECT/CONDITIONAL} | **Confidence:** {N}/10
+**Outcome:** {APPROVE/REJECT/CONDITIONAL/RECOMMEND/INCONCLUSIVE} | **Confidence:** {N}/10
 
-## Recommended Decision
-{One-sentence summary from verdict}
+## Conclusion
+{One-sentence takeaway from verdict}
 
 ## Rationale
 {3–7 bullets from verdict rationale}
@@ -413,12 +417,20 @@ Output the following to the user:
 - {question 2}
 ```
 
-If `decision` is `reject`, add:
+If `outcome` is `reject` or `conditional` and `caveats` is non-empty, add:
 
 ```markdown
-## Required Changes Before Approval
-- {required change 1}
-- {required change 2}
+## Required Changes
+- {caveat 1}
+- {caveat 2}
+```
+
+If `outcome` is `recommend` and `caveats` is non-empty, add:
+
+```markdown
+## Important Caveats
+- {caveat 1}
+- {caveat 2}
 ```
 
 ### Step 9: Save Artifact
@@ -436,7 +448,7 @@ FILENAME="${TIMESTAMP}-${SLUG}.md"
 
 Create the final debate document by combining:
 
-1. **YAML frontmatter**: topic, rounds, date, decision, confidence
+1. **YAML frontmatter**: topic, rounds, date, outcome, confidence
 2. **Summary** (from Step 8)
 3. **Full Transcript** (all rounds in order)
 4. **Raw Verdict JSON** (if available, in a fenced code block at the end)

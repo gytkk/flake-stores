@@ -148,7 +148,8 @@ Create the initial transcript file with frontmatter:
 ```bash
 cat > "${SESSION_DIR}/transcript.md" << FRONT_EOF
 ---
-topic: "{TOPIC}"
+topic: |-
+$(printf '%s\n' "${TOPIC}" | sed 's/^/  /')
 rounds: {ROUNDS}
 date: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 session: ${SESSION_ID}
@@ -438,10 +439,8 @@ If `outcome` is `recommend` and `caveats` is non-empty, add:
 #### 9a. Generate Filename
 
 ```bash
-# Create URL-safe slug from topic
-SLUG=$(echo "{TOPIC}" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '-' | sed 's/^-//;s/-$//' | head -c 50)
-TIMESTAMP=$(date +%Y%m%d-%H%M)
-FILENAME="${TIMESTAMP}-${SLUG}.md"
+# Use session id to avoid collisions across rapid re-runs
+FILENAME="${SESSION_ID}.md"
 ```
 
 #### 9b. Compose Full Artifact

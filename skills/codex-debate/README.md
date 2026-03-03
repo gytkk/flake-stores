@@ -27,31 +27,27 @@ claude plugin add --local /path/to/skills/codex-debate
 ## Usage
 
 ```text
-/codex-debate:debate "topic" [--rounds 3] [--mode architecture|security|perf|testing] [--files <glob>] [--diff]
+/codex-debate:debate "topic" [--rounds 3] [--files <glob>] [--diff]
 ```
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `"topic"` | *(required)* | The debate subject |
 | `--rounds N` | `3` | Number of debate rounds (auto-adjusted to odd) |
-| `--mode M` | `architecture` | Evaluation rubric to apply |
 | `--files <glob>` | *(none)* | File glob for context |
 | `--diff` | *(default if no --files)* | Include git diff as context |
 
 ### Examples
 
 ```bash
-# Architecture debate with default settings
+# Debate with default settings
 /codex-debate:debate "Should we split the monolith into microservices?"
 
-# Security review of specific files
-/codex-debate:debate "Auth module security posture" --mode security --files "src/auth/**/*.ts"
+# Review specific files
+/codex-debate:debate "Auth module design review" --files "src/auth/**/*.ts"
 
-# Performance analysis of recent changes
-/codex-debate:debate "Database query optimization strategy" --mode perf --diff --rounds 5
-
-# Testing strategy discussion
-/codex-debate:debate "Integration test approach for payment module" --mode testing
+# Debate recent changes with more rounds
+/codex-debate:debate "Database query optimization strategy" --diff --rounds 5
 ```
 
 ### Alternative: Global Command
@@ -106,16 +102,11 @@ R3 (Codex)   ─── Final verdict: APPROVE / REJECT / CONDITIONAL
 | **Claude** | Builder | Proposes, defends, revises based on valid critique |
 | **Codex** | Reviewer | Challenges, identifies risks, proposes alternatives |
 
-### Mode Rubrics
+### Evaluation
 
-| Mode | Focus Areas |
-|------|-------------|
-| `architecture` | Modularity, coupling, scalability, API design, migration |
-| `security` | OWASP Top 10, auth, input validation, secrets, supply chain |
-| `perf` | Complexity, memory, I/O, caching, concurrency, queries |
-| `testing` | Coverage, pyramid, mocking, CI, flaky prevention, assertions |
-
-See [`references/rubrics.md`](references/rubrics.md) for detailed criteria.
+Proposals are evaluated holistically across: correctness, architecture, security,
+performance, testing, maintainability, feasibility, and risk. Dimensions are weighted
+based on the specific topic and context. See [`references/rubrics.md`](references/rubrics.md).
 
 ## Output
 
@@ -135,7 +126,7 @@ Decision: APPROVE | Confidence: 8/10
 ### Artifact File
 
 Saved to `.claude/debates/YYYYMMDD-HHMM-slug.md` with:
-- YAML frontmatter (topic, mode, rounds, date, decision, confidence)
+- YAML frontmatter (topic, rounds, date, decision, confidence)
 - Full summary
 - Complete transcript (all rounds)
 - Raw verdict JSON
@@ -152,12 +143,13 @@ skills/codex-debate/
 │   └── codex-debate-agents.md   # Codex reviewer persona
 ├── references/
 │   ├── debate-schema.json       # Final verdict JSON schema
-│   └── rubrics.md               # Mode-specific evaluation criteria
+│   └── rubrics.md               # Evaluation criteria
 ├── tests/
 │   ├── lib.sh                   # Extracted functions for testing
 │   ├── test-mask-secrets.sh     # Secret masking unit tests
 │   ├── test-parse-args.sh       # Argument parsing unit tests
-│   └── test-save-debate.sh      # Save/slug unit tests
+│   ├── test-save-debate.sh      # Save/slug unit tests
+│   └── test-collect-context.sh  # Context collection unit tests
 └── README.md
 ```
 
@@ -200,7 +192,7 @@ For full end-to-end testing with actual Codex model calls:
 
 1. Ensure `codex` CLI is installed and authenticated
 2. Have a project with git history (for `--diff` context)
-3. Run: `/codex-debate:debate "Test: should we add caching?" --rounds 1 --mode perf`
+3. Run: `/codex-debate:debate "Test: should we add caching?" --rounds 1`
 4. Verify:
    - Round 0 (Claude) produces structured proposal
    - Round 1 (Codex) produces structured critique via MCP

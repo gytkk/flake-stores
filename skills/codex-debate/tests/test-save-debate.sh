@@ -88,7 +88,6 @@ echo "=== save_debate tests ==="
 # Test 6: Basic save
 output_path=$(save_debate \
   "Test Topic" \
-  "architecture" \
   "3" \
   "approve" \
   "8" \
@@ -100,7 +99,6 @@ assert_file_exists "Debate file created" "$output_path"
 
 # Test 7: Frontmatter present
 assert_file_contains "Has topic in frontmatter" "$output_path" "topic: \"Test Topic\""
-assert_file_contains "Has mode in frontmatter" "$output_path" "mode: architecture"
 assert_file_contains "Has decision in frontmatter" "$output_path" "decision: approve"
 
 # Test 8: Content sections present
@@ -114,7 +112,6 @@ assert_file_exists "Debates dir exists" ".claude/debates/$(basename "$output_pat
 # Test 10: Save without verdict JSON
 output_path2=$(save_debate \
   "No Verdict Topic" \
-  "security" \
   "1" \
   "reject" \
   "3" \

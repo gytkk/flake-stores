@@ -2,7 +2,7 @@
 description: >-
   Structured multi-round debate between Claude (builder) and Codex (skeptical
   reviewer). Produces actionable decisions with rationale, risks, and next steps.
-argument-hint: '"topic" [--rounds 3] [--mode architecture|security|perf|testing] [--files <glob>] [--diff]'
+argument-hint: '"topic" [--rounds 3] [--files <glob>] [--diff]'
 allowed-tools:
   - Bash
   - Read
@@ -30,7 +30,7 @@ output; the final round delivers an actionable verdict.
 ## Invocation
 
 ```text
-/codex-debate:debate "topic" [--rounds 3] [--mode architecture|security|perf|testing] [--files <glob>] [--diff]
+/codex-debate:debate "topic" [--rounds 3] [--files <glob>] [--diff]
 ```
 
 ## User Visibility Rules
@@ -68,7 +68,6 @@ Parse the skill argument string. Extract the following parameters:
 |-----------|------|---------|------------|
 | `TOPIC` | First quoted string or bare text | *(required)* | Non-empty |
 | `ROUNDS` | `--rounds N` | `3` | Integer 1–10; if even, decrement to previous odd |
-| `MODE` | `--mode M` | `architecture` | One of: `architecture`, `security`, `perf`, `testing` |
 | `FILES` | `--files <glob>` | *(none)* | Valid glob pattern |
 | `DIFF` | `--diff` | `false` | Boolean flag |
 
@@ -77,7 +76,7 @@ Parse the skill argument string. Extract the following parameters:
 - If `ROUNDS` is even, decrement by 1 so Codex always has the final verdict round (stays within 1–10).
 - If neither `--files` nor `--diff` is specified, default to `--diff`.
 
-**User output:** One line: `Debate: "{TOPIC}" | Mode: {MODE} | Rounds: {ROUNDS}`
+**User output:** One line: `Debate: "{TOPIC}" | Rounds: {ROUNDS}`
 
 ### Step 3: Collect Context
 
@@ -125,7 +124,7 @@ If collected context exceeds 2000 characters, truncate and append:
 
 Store final result as `CONTEXT_SUMMARY`.
 
-**User output:** One line: `Context: {N} files | {diff_line_count} diff lines | Mode: {MODE}`
+**User output:** One line: `Context: {N} files | {diff_line_count} diff lines`
 
 ### Step 4: Initialize Debate Session
 
@@ -141,7 +140,6 @@ Create the initial transcript file with frontmatter:
 cat > "${SESSION_DIR}/transcript.md" << FRONT_EOF
 ---
 topic: "{TOPIC}"
-mode: {MODE}
 rounds: {ROUNDS}
 date: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 session: ${SESSION_ID}
@@ -149,7 +147,7 @@ session: ${SESSION_ID}
 
 # Debate: {TOPIC}
 
-**Mode:** {MODE} | **Rounds:** {ROUNDS} | **Date:** $(date +%Y-%m-%d)
+**Rounds:** {ROUNDS} | **Date:** $(date +%Y-%m-%d)
 
 ---
 
@@ -165,7 +163,7 @@ proposal.
 
 #### Instructions for your reasoning:
 
-1. Consider the topic through the lens of the `{MODE}` rubric
+1. Analyze the topic holistically — consider correctness, security, performance, maintainability
 2. If context (diff/files) is available, reference specific code/patterns
 3. Be opinionated — take a clear position
 4. Anticipate likely objections and preemptively address the strongest one
@@ -210,11 +208,10 @@ For each **odd-numbered** round, invoke Codex via MCP.
 ```text
 Adversarial debate reviewer. Stress-test proposals, find what could go wrong.
 Principles: 1) Challenge every assumption with evidence. 2) Propose concrete alternatives, not vague objections. 3) Quantify risks (severity: high/medium/low). 4) Acknowledge strong points honestly. 5) Production-first mindset.
-Apply the {MODE} rubric strictly. Be constructive but uncompromising.
+Evaluate holistically: correctness, security, performance, maintainability, feasibility. Be constructive but uncompromising.
 ```
 
-Replace `{MODE}` with the actual mode value. For the full persona definition, see
-`agents/codex-debate-agents.md` (the condensed version above captures its core for prompt size).
+For the full persona definition, see `agents/codex-debate-agents.md`.
 
 **`base-instructions`** — depends on whether this is the **final round** or an intermediate round:
 
@@ -262,7 +259,6 @@ For **R1** (first Codex round):
 
 ```text
 ## Debate: {TOPIC}
-## Mode: {MODE}
 Read `.claude/debates/tmp-{SESSION_ID}/transcript.md` for the proposal.
 Context files: {FILE_PATHS_OR_DIFF_NOTE}
 ```
@@ -278,7 +274,7 @@ Claude revised their proposal (Round {N-1}). Read updated transcript at `.claude
 **For R1** — call `mcp__codex__codex`:
 
 - `prompt`: As composed above (under 500 chars)
-- `developer-instructions`: Agent persona (with mode substituted)
+- `developer-instructions`: Agent persona
 - `base-instructions`: Round-specific template (with session ID and round number substituted)
 - `cwd`: Current working directory (absolute path)
 - `sandbox`: `"read-only"`
@@ -432,7 +428,7 @@ FILENAME="${TIMESTAMP}-${SLUG}.md"
 
 Create the final debate document by combining:
 
-1. **YAML frontmatter**: topic, mode, rounds, date, decision, confidence
+1. **YAML frontmatter**: topic, rounds, date, decision, confidence
 2. **Summary** (from Step 8)
 3. **Full Transcript** (all rounds in order)
 4. **Raw Verdict JSON** (if available, in a fenced code block at the end)

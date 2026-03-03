@@ -18,13 +18,12 @@ mask_secrets() {
 
 # ============================================================
 # parse_args — Parse debate command arguments
-# Usage: parse_args "topic" --rounds 3 --mode security --diff
-# Returns: TOPIC, ROUNDS, MODE, FILES, DIFF as exported variables
+# Usage: parse_args "topic" --rounds 3 --diff
+# Returns: TOPIC, ROUNDS, FILES, DIFF as exported variables
 # ============================================================
 parse_args() {
   TOPIC=""
   ROUNDS=3
-  MODE="architecture"
   FILES=""
   DIFF=false
 
@@ -35,13 +34,6 @@ parse_args() {
           echo "ERROR: --rounds requires a value" >&2; return 1
         fi
         ROUNDS="$2"
-        shift 2
-        ;;
-      --mode)
-        if [[ $# -lt 2 ]]; then
-          echo "ERROR: --mode requires a value" >&2; return 1
-        fi
-        MODE="$2"
         shift 2
         ;;
       --files)
@@ -75,15 +67,6 @@ parse_args() {
     DIFF=true
   fi
 
-  # Validate mode
-  case "$MODE" in
-    architecture|security|perf|testing) ;;
-    *)
-      echo "ERROR: Invalid mode '$MODE'. Must be one of: architecture, security, perf, testing" >&2
-      return 1
-      ;;
-  esac
-
   # Validate rounds (input must be 1-10)
   if ! [[ "$ROUNDS" =~ ^[0-9]+$ ]] || [[ "$ROUNDS" -lt 1 ]] || [[ "$ROUNDS" -gt 10 ]]; then
     echo "ERROR: Rounds must be integer 1-10, got '$ROUNDS'" >&2
@@ -105,7 +88,7 @@ parse_args() {
     return 1
   fi
 
-  export TOPIC ROUNDS MODE FILES DIFF
+  export TOPIC ROUNDS FILES DIFF
 }
 
 # ============================================================
@@ -189,17 +172,16 @@ generate_slug() {
 
 # ============================================================
 # save_debate — Save final debate artifact
-# Usage: save_debate <topic> <mode> <rounds> <decision> <confidence> <summary_md> <transcript_md> [<verdict_json>]
+# Usage: save_debate <topic> <rounds> <decision> <confidence> <summary_md> <transcript_md> [<verdict_json>]
 # ============================================================
 save_debate() {
   local topic="$1"
-  local mode="$2"
-  local rounds="$3"
-  local decision="${4:-unknown}"
-  local confidence="${5:-0}"
-  local summary_md="$6"
-  local transcript_md="$7"
-  local verdict_json="${8:-}"
+  local rounds="$2"
+  local decision="${3:-unknown}"
+  local confidence="${4:-0}"
+  local summary_md="$5"
+  local transcript_md="$6"
+  local verdict_json="${7:-}"
 
   local slug
   slug=$(generate_slug "$topic")
@@ -214,7 +196,6 @@ save_debate() {
     cat <<FRONT
 ---
 topic: "${topic}"
-mode: ${mode}
 rounds: ${rounds}
 date: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 decision: ${decision}

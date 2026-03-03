@@ -2,7 +2,7 @@
 description: >-
   Structured multi-round debate between Claude (builder) and Codex (skeptical
   reviewer). Produces actionable decisions with rationale, risks, and next steps.
-argument-hint: '"topic" [--rounds 3] [--files <glob>] [--diff]'
+argument-hint: '"topic" [--rounds 3]'
 allowed-tools:
   - Bash
   - Read
@@ -30,7 +30,7 @@ output; the final round delivers an actionable verdict.
 ## Invocation
 
 ```text
-/codex-debate:debate "topic" [--rounds 3] [--files <glob>] [--diff]
+/codex-debate:debate "topic" [--rounds 3]
 ```
 
 ## User Visibility Rules
@@ -68,26 +68,34 @@ Parse the skill argument string. Extract the following parameters:
 |-----------|------|---------|------------|
 | `TOPIC` | First quoted string or bare text | *(required)* | Non-empty |
 | `ROUNDS` | `--rounds N` | `3` | Integer 1–10; if even, decrement to previous odd |
-| `FILES` | `--files <glob>` | *(none)* | Valid glob pattern |
-| `DIFF` | `--diff` | `false` | Boolean flag |
 
 **Rules:**
 - If `TOPIC` is empty, ask the user to provide a topic and **stop**.
 - If `ROUNDS` is even, decrement by 1 so Codex always has the final verdict round (stays within 1–10).
-- If neither `--files` nor `--diff` is specified, default to `--diff`.
 
 **User output:** One line: `Debate: "{TOPIC}" | Rounds: {ROUNDS}`
 
-### Step 3: Collect Context
+### Step 3: Smart Context Collection
 
-Gather project context for the debate. Apply secret masking to all collected text.
+Analyze the topic and automatically gather relevant project context. No explicit flags
+are needed — you decide what context is useful based on the topic.
 
-#### 3a. Git Diff Context
+#### 3a. Topic Analysis
 
-If `DIFF` is true (or default):
+Read the `TOPIC` and determine what context would be most valuable:
+
+- **If the topic mentions specific files, modules, or paths** (e.g., "auth module", "src/api"):
+  Use Glob/Grep to find relevant files and record their paths.
+- **If the topic discusses recent changes, refactoring, or code review**:
+  Collect git diff (staged → working tree → last commit).
+- **If the topic is abstract or architectural** (e.g., "should we use microservices?"):
+  Collect project structure overview (`git ls-files | head -30`).
+- **Always** collect git diff as baseline context when any diff exists.
+
+#### 3b. Auto-Gather Context
 
 ```bash
-# Try staged, then working tree, then last commit
+# Always try git diff (staged → working → last commit)
 DIFF_CONTENT=$(git diff --staged 2>/dev/null)
 if [ -z "$DIFF_CONTENT" ]; then
   DIFF_CONTENT=$(git diff 2>/dev/null)
@@ -96,12 +104,13 @@ if [ -z "$DIFF_CONTENT" ]; then
   DIFF_CONTENT=$(git diff HEAD~1 HEAD 2>/dev/null)
 fi
 DIFF_STAT=$(echo "$DIFF_CONTENT" | head -200)
+
+# Project structure overview
+STRUCTURE=$(git ls-files 2>/dev/null | head -30)
 ```
 
-#### 3b. File Context
-
-If `FILES` is specified, use Glob to find matching paths. Record **paths only** — do NOT read
-file content (Codex accesses files via `cwd`).
+If the topic references specific files/modules, also use Glob to find matching paths.
+Record **paths only** — do NOT read file content (Codex accesses files via `cwd`).
 
 #### 3c. Secret Masking
 
@@ -124,7 +133,7 @@ If collected context exceeds 2000 characters, truncate and append:
 
 Store final result as `CONTEXT_SUMMARY`.
 
-**User output:** One line: `Context: {N} files | {diff_line_count} diff lines`
+**User output:** One line: `Context: {diff_line_count} diff lines | {additional_context_note}`
 
 ### Step 4: Initialize Debate Session
 
@@ -259,8 +268,7 @@ For **R1** (first Codex round):
 
 ```text
 ## Debate: {TOPIC}
-Read `.claude/debates/tmp-{SESSION_ID}/transcript.md` for the proposal.
-Context files: {FILE_PATHS_OR_DIFF_NOTE}
+Read `.claude/debates/tmp-{SESSION_ID}/transcript.md` for the proposal and context.
 ```
 
 For **R3, R5…** (subsequent Codex rounds):
@@ -487,6 +495,7 @@ Last round is always odd (Codex verdict). `--rounds` enforced to be odd.
 Only the following shell commands are permitted during context collection:
 
 - `git diff`, `git diff --staged`, `git diff HEAD~1 HEAD` (with `--stat` variant)
+- `git ls-files` (for project structure overview)
 - `git log --oneline -10`
 - `date`, `mkdir -p`, `ls`, `rm -rf` (only on session tmp dir)
 - `head`, `wc` (for truncation/counting)

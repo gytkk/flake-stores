@@ -27,15 +27,16 @@ claude plugin add --local /path/to/skills/codex-debate
 ## Usage
 
 ```text
-/codex-debate:debate "topic" [--rounds 3] [--files <glob>] [--diff]
+/codex-debate:debate "topic" [--rounds 3]
 ```
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `"topic"` | *(required)* | The debate subject |
 | `--rounds N` | `3` | Number of debate rounds (auto-adjusted to odd) |
-| `--files <glob>` | *(none)* | File glob for context |
-| `--diff` | *(default if no --files)* | Include git diff as context |
+
+Context is gathered automatically based on the topic — git diff, project structure, and
+relevant files are detected without explicit flags.
 
 ### Examples
 
@@ -43,11 +44,11 @@ claude plugin add --local /path/to/skills/codex-debate
 # Debate with default settings
 /codex-debate:debate "Should we split the monolith into microservices?"
 
-# Review specific files
-/codex-debate:debate "Auth module design review" --files "src/auth/**/*.ts"
+# Architecture review — auto-detects project structure
+/codex-debate:debate "Auth module design review"
 
-# Debate recent changes with more rounds
-/codex-debate:debate "Database query optimization strategy" --diff --rounds 5
+# Debate with more rounds
+/codex-debate:debate "Database query optimization strategy" --rounds 5
 ```
 
 ### Alternative: Global Command
@@ -173,7 +174,7 @@ skills/codex-debate/
   patterns, long base64 strings — all masked before inclusion
 - **No auto-execution**: Files in context are referenced by path, not executed
 - **Read-only Codex sandbox**: Codex MCP runs with `sandbox: "read-only"`
-- **Explicit file selection**: Only `--files` glob or `--diff` content included
+- **Smart context detection**: Context auto-gathered based on topic analysis
 
 ## Testing
 
@@ -191,7 +192,7 @@ bash skills/codex-debate/tests/test-collect-context.sh
 For full end-to-end testing with actual Codex model calls:
 
 1. Ensure `codex` CLI is installed and authenticated
-2. Have a project with git history (for `--diff` context)
+2. Have a project with git history (for auto-detected context)
 3. Run: `/codex-debate:debate "Test: should we add caching?" --rounds 1`
 4. Verify:
    - Round 0 (Claude) produces structured proposal

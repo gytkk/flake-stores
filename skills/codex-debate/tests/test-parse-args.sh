@@ -41,14 +41,11 @@ echo "=== parse_args tests ==="
 parse_args "Should we use microservices?"
 assert_eq "Topic parsed" "Should we use microservices?" "$TOPIC"
 assert_eq "Default rounds" "3" "$ROUNDS"
-assert_eq "Default diff" "true" "$DIFF"
 
-# Test 2: All flags
-parse_args "Security review" --rounds 5 --files "*.ts" --diff
+# Test 2: Topic with custom rounds
+parse_args "Security review" --rounds 5
 assert_eq "Topic with flags" "Security review" "$TOPIC"
 assert_eq "Custom rounds (odd)" "5" "$ROUNDS"
-assert_eq "Files pattern" "*.ts" "$FILES"
-assert_eq "Diff flag" "true" "$DIFF"
 
 # Test 3: Even rounds decremented to odd
 parse_args "Test topic" --rounds 4
@@ -76,16 +73,20 @@ assert_eq "Rounds 10 → 9 (decremented)" "9" "$ROUNDS"
 parse_args '"Double quoted topic"'
 assert_eq "Quoted topic stripped" "Double quoted topic" "$TOPIC"
 
-# Test 10: --files without --diff defaults diff to false (since files specified)
-parse_args "topic" --files "src/**/*.ts"
-assert_eq "Files specified, diff off" "false" "$DIFF"
-assert_eq "Files pattern stored" "src/**/*.ts" "$FILES"
+# Test 10: Removed --files flag rejected
+assert_fails "Removed --files rejected" parse_args "topic" --files "*.ts"
 
-# Test 11: Multi-word bare topic (without quotes)
+# Test 11: Removed --diff flag rejected
+assert_fails "Removed --diff rejected" parse_args "topic" --diff
+
+# Test 12: Unknown flag rejected
+assert_fails "Unknown --foo rejected" parse_args "topic" --foo
+
+# Test 13: Multi-word bare topic (without quotes)
 parse_args Should we use microservices
 assert_eq "Multi-word bare topic" "Should we use microservices" "$TOPIC"
 
-# Test 12: Multi-word topic with flags interspersed
+# Test 14: Multi-word topic with flags interspersed
 parse_args Should we refactor --rounds 5
 assert_eq "Multi-word with flags" "Should we refactor" "$TOPIC"
 assert_eq "Rounds after multi-word" "5" "$ROUNDS"

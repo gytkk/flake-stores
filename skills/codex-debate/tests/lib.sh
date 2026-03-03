@@ -18,14 +18,12 @@ mask_secrets() {
 
 # ============================================================
 # parse_args — Parse debate command arguments
-# Usage: parse_args "topic" --rounds 3 --diff
-# Returns: TOPIC, ROUNDS, FILES, DIFF as exported variables
+# Usage: parse_args "topic" --rounds 3
+# Returns: TOPIC, ROUNDS as exported variables
 # ============================================================
 parse_args() {
   TOPIC=""
   ROUNDS=3
-  FILES=""
-  DIFF=false
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -36,16 +34,8 @@ parse_args() {
         ROUNDS="$2"
         shift 2
         ;;
-      --files)
-        if [[ $# -lt 2 ]]; then
-          echo "ERROR: --files requires a value" >&2; return 1
-        fi
-        FILES="$2"
-        shift 2
-        ;;
-      --diff)
-        DIFF=true
-        shift
+      --*)
+        echo "ERROR: Unknown flag '$1'" >&2; return 1
         ;;
       *)
         # Non-flag arguments are concatenated into the topic (strip quotes)
@@ -61,11 +51,6 @@ parse_args() {
         ;;
     esac
   done
-
-  # Default to --diff if neither --files nor --diff specified
-  if [[ -z "$FILES" ]] && [[ "$DIFF" == "false" ]]; then
-    DIFF=true
-  fi
 
   # Validate rounds (input must be 1-10)
   if ! [[ "$ROUNDS" =~ ^[0-9]+$ ]] || [[ "$ROUNDS" -lt 1 ]] || [[ "$ROUNDS" -gt 10 ]]; then
@@ -88,25 +73,19 @@ parse_args() {
     return 1
   fi
 
-  export TOPIC ROUNDS FILES DIFF
+  export TOPIC ROUNDS
 }
 
 # ============================================================
-# collect_context — Gather git diff and/or file paths
-# Usage: collect_context [--diff] [--files "*.ts"]
-# Returns: CONTEXT_SUMMARY, CONTEXT_FILE_COUNT, CONTEXT_DIFF_LINES
+# collect_context — Auto-gather project context (git diff + structure)
+# Usage: collect_context [--max-chars 2000]
+# Returns: CONTEXT_SUMMARY, CONTEXT_DIFF_LINES
 # ============================================================
 collect_context() {
-  local use_diff=false
-  local file_glob=""
   local max_chars=2000
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --diff) use_diff=true; shift ;;
-      --files)
-        if [[ $# -lt 2 ]]; then echo "ERROR: --files requires a value" >&2; return 1; fi
-        file_glob="$2"; shift 2 ;;
       --max-chars)
         if [[ $# -lt 2 ]]; then echo "ERROR: --max-chars requires a value" >&2; return 1; fi
         max_chars="$2"; shift 2 ;;
@@ -115,35 +94,28 @@ collect_context() {
   done
 
   local context=""
-  local file_count=0
   local diff_lines=0
 
-  # Collect git diff
-  if [[ "$use_diff" == "true" ]]; then
-    local diff_content=""
-    diff_content=$(git diff --staged 2>/dev/null || true)
-    if [[ -z "$diff_content" ]]; then
-      diff_content=$(git diff 2>/dev/null || true)
-    fi
-    if [[ -z "$diff_content" ]]; then
-      diff_content=$(git diff HEAD~1 HEAD 2>/dev/null || true)
-    fi
-
-    if [[ -n "$diff_content" ]]; then
-      diff_lines=$(echo "$diff_content" | wc -l | tr -d ' ')
-      # Take first portion that fits
-      context=$(echo "$diff_content" | head -200)
-    fi
+  # Auto-collect git diff (staged → working tree → last commit)
+  local diff_content=""
+  diff_content=$(git diff --staged 2>/dev/null || true)
+  if [[ -z "$diff_content" ]]; then
+    diff_content=$(git diff 2>/dev/null || true)
+  fi
+  if [[ -z "$diff_content" ]]; then
+    diff_content=$(git diff HEAD~1 HEAD 2>/dev/null || true)
   fi
 
-  # Collect file paths
-  if [[ -n "$file_glob" ]]; then
-    local files
-    files=$(find . -path "./$file_glob" -type f 2>/dev/null | head -20 || true)
-    if [[ -n "$files" ]]; then
-      file_count=$(echo "$files" | wc -l | tr -d ' ')
-      context="$(printf '%s\n\n## Relevant Files\n%s' "$context" "$files")"
-    fi
+  if [[ -n "$diff_content" ]]; then
+    diff_lines=$(echo "$diff_content" | wc -l | tr -d ' ')
+    context=$(echo "$diff_content" | head -200)
+  fi
+
+  # Auto-collect project structure overview
+  local structure=""
+  structure=$(git ls-files 2>/dev/null | head -30 || true)
+  if [[ -n "$structure" ]]; then
+    context="$(printf '%s\n\n## Project Structure (top 30 tracked files)\n%s' "$context" "$structure")"
   fi
 
   # Apply secret masking
@@ -156,9 +128,8 @@ collect_context() {
   fi
 
   CONTEXT_SUMMARY="$context"
-  CONTEXT_FILE_COUNT="$file_count"
   CONTEXT_DIFF_LINES="$diff_lines"
-  export CONTEXT_SUMMARY CONTEXT_FILE_COUNT CONTEXT_DIFF_LINES
+  export CONTEXT_SUMMARY CONTEXT_DIFF_LINES
 }
 
 # ============================================================

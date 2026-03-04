@@ -2,9 +2,9 @@ name: Update App Versions
 
 on:
   push:
+    branches: [main]
   schedule:
     - cron: "15 */3 * * *"
-  workflow_dispatch:
 
 jobs:
   update:

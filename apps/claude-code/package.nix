@@ -11,11 +11,11 @@
 }:
 
 let
-  version = "2.1.69";
+  version = "2.1.70";
 
   src = fetchurl {
     url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
-    hash = "sha256-RbQCHPNBdLrMT0DSIAZyRIovSkDf8JBPJbpbIVD5EK0=";
+    hash = "sha256-YGPF83dBBfYlAZftP9wLpPZPx2y8Q9jSmX12gvB5Z9I=";
   };
 
   runtimePath = lib.makeBinPath (

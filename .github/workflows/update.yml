@@ -43,9 +43,16 @@ jobs:
         run: |
           git diff --quiet && exit 0
 
-          CHANGED_APPS=$(git status --short apps | awk '{print $2}' | cut -d/ -f2 | sort -u | tr '\n' ' ')
+          CHANGED_APPS=$(git status --short apps | awk '{print $2}' | cut -d/ -f2 | sort -u)
+          APP_VERSIONS=""
+          for app in $CHANGED_APPS; do
+            ver=$(grep 'version = "' "apps/$app/package.nix" | head -1 | sed 's/.*"\(.*\)".*/\1/')
+            APP_VERSIONS="${APP_VERSIONS}${app} v${ver}, "
+          done
+          APP_VERSIONS="${APP_VERSIONS%, }"
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add apps README.md
-          git commit -m "feat(apps): update app versions (${CHANGED_APPS})"
+          git commit -m "feat(apps): update app versions (${APP_VERSIONS})"
           git push

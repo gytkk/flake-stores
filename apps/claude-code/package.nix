@@ -1,9 +1,10 @@
 {
   lib,
+  stdenv,
   stdenvNoCC,
   fetchurl,
-  bun,
-  cacert,
+  autoPatchelfHook,
+  makeWrapper,
   procps,
   ripgrep,
   bubblewrap,
@@ -13,9 +14,37 @@
 let
   version = "2.1.92";
 
+  baseUrl = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases";
+
+  platformMap = {
+    "aarch64-darwin" = {
+      suffix = "darwin-arm64";
+      hash = "sha256-bRuWV3J9zoEzKzzaEb/gqMg+I5LjwGKjECLhCw5xzdE=";
+    };
+
+    "x86_64-darwin" = {
+      suffix = "darwin-x64";
+      hash = "sha256-1CK1zJdLO8Syj2mBRP0DFvPhd3S6vgvB63bCuwhY0Ko=";
+    };
+
+    "x86_64-linux" = {
+      suffix = "linux-x64";
+      hash = "sha256-4iMkUUln/y1en5Hw7jfkZ1v4tt/sJ/r7GcslzFsj/K8=";
+    };
+
+    "aarch64-linux" = {
+      suffix = "linux-arm64";
+      hash = "sha256-CN6z1WR3SW65LmJPSS4lsSP0Un3VZ09xr/9YpI7M2VM=";
+    };
+  };
+
+  platform =
+    platformMap.${stdenvNoCC.hostPlatform.system}
+      or (throw "Unsupported system: ${stdenvNoCC.hostPlatform.system}");
+
   src = fetchurl {
-    url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
-    hash = "sha256-//iF+Rbms6cYU1WWAa8Sq7G2RxTPwvBjWiVhO5Z0k0c=";
+    url = "${baseUrl}/${version}/${platform.suffix}/claude";
+    hash = platform.hash;
   };
 
   runtimePath = lib.makeBinPath (
@@ -35,67 +64,31 @@ stdenvNoCC.mkDerivation {
 
   dontUnpack = true;
 
-  nativeBuildInputs = [
-    bun
-    cacert
+  nativeBuildInputs =
+    [ makeWrapper ]
+    ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [ autoPatchelfHook ];
+
+  buildInputs = lib.optionals stdenvNoCC.hostPlatform.isLinux [
+    stdenv.cc.cc.lib
   ];
 
-  buildPhase = ''
-    runHook preBuild
-    export HOME=$TMPDIR
-    export SSL_CERT_FILE=${cacert}/etc/ssl/certs/ca-bundle.crt
-
-    mkdir -p $out/lib/node_modules/@anthropic-ai
-    tar -xzf ${src} -C $out/lib/node_modules/@anthropic-ai
-    mv $out/lib/node_modules/@anthropic-ai/package $out/lib/node_modules/@anthropic-ai/claude-code
-
-    cd $out/lib/node_modules/@anthropic-ai/claude-code
-    ${bun}/bin/bun install --production --ignore-scripts
-    runHook postBuild
-  '';
+  dontStrip = true;
 
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/bin
-
-    cat > $out/bin/claude << WRAPPER
-    #!/usr/bin/env bash
-    export NODE_PATH="$out/lib/node_modules"
-    export DISABLE_AUTOUPDATER=1
-    export DISABLE_INSTALLATION_CHECKS=1
-    export PATH="${runtimePath}\''${PATH:+:\$PATH}"
-
-    # Intercept npm update commands used by claude-code self-update check
-    _NPM_DIR="\$(mktemp -d)"
-    trap 'rm -rf "\$_NPM_DIR"' EXIT
-    cat > "\$_NPM_DIR/npm" << 'NPM_SCRIPT'
-    #!/usr/bin/env bash
-    case "\$1" in
-      update|outdated) echo "Updates managed by Nix (v${version})"; exit 0 ;;
-      view) [[ "\$2" =~ @anthropic-ai/claude-code ]] && { echo "Updates managed by Nix (v${version})"; exit 0; } ;;
-    esac
-    exec ${bun}/bin/bun "\$@"
-    NPM_SCRIPT
-    chmod +x "\$_NPM_DIR/npm"
-    export PATH="\$_NPM_DIR:\$PATH"
-
-    exec ${bun}/bin/bun run $out/lib/node_modules/@anthropic-ai/claude-code/cli.js "\$@"
-    WRAPPER
-    chmod +x $out/bin/claude
-
+    install -Dm755 ${src} $out/bin/claude
+    wrapProgram $out/bin/claude \
+      --set DISABLE_AUTOUPDATER 1 \
+      --set DISABLE_INSTALLATION_CHECKS 1 \
+      --prefix PATH : "${runtimePath}"
     runHook postInstall
   '';
 
   meta = {
-    description = "AI coding assistant in your terminal (Bun runtime)";
+    description = "AI coding assistant in your terminal (native binary)";
     homepage = "https://www.anthropic.com/claude-code";
     license = lib.licenses.unfree;
-    platforms = [
-      "aarch64-darwin"
-      "x86_64-darwin"
-      "x86_64-linux"
-      "aarch64-linux"
-    ];
+    platforms = builtins.attrNames platformMap;
     mainProgram = "claude";
   };
 }

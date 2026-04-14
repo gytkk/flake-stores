@@ -47,12 +47,32 @@
 
       mkChecks =
         system:
-        builtins.listToAttrs (
-          map (name: {
-            name = "${name}-build";
-            value = packageFor system name;
-          }) appNames
-        );
+        let
+          pkgs = pkgsFor system;
+          buildChecks = builtins.listToAttrs (
+            map (name: {
+              name = "${name}-build";
+              value = packageFor system name;
+            }) appNames
+          );
+          openclawSmoke =
+            if system == "x86_64-linux" && builtins.elem "openclaw" appNames then
+              let
+                pkg = packageFor system "openclaw";
+              in
+              {
+                openclaw-smoke = pkgs.runCommand "openclaw-smoke" { nativeBuildInputs = [ pkgs.nodejs ]; } ''
+                  export HOME="$TMPDIR"
+                  test -d "${pkg}/libexec/openclaw/skills"
+                  ${pkgs.nodejs}/bin/node -e 'import("file://${pkg}/libexec/openclaw/node_modules/sharp/lib/index.js").then(() => console.log("sharp import ok")).catch((err) => { console.error(err); process.exit(1); })'
+                  ${pkg}/bin/openclaw skills list >/dev/null
+                  touch "$out"
+                '';
+              }
+            else
+              { };
+        in
+        buildChecks // openclawSmoke;
 
       mkApps =
         system:

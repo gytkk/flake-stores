@@ -101,7 +101,13 @@ buildNpmPackage {
         node-pty-linux-x64
 
       keep_only_children "$packageOut/node_modules/@mariozechner" \
-        clipboard-linux-x64-gnu
+        clipboard \
+        clipboard-linux-x64-gnu \
+        jiti \
+        pi-agent-core \
+        pi-ai \
+        pi-coding-agent \
+        pi-tui
 
       keep_only_children "$packageOut/node_modules/@napi-rs" \
         canvas-linux-x64-gnu

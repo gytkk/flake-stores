@@ -25,6 +25,7 @@ buildNpmPackage {
 
   npmDepsHash = "sha256-c2Ipcza3z24xFHJxUfrJnuybKOglrnLKHQl7lTLoLlQ=";
   sourceRoot = "package";
+  makeCacheWritable = true;
   npmFlags = [ "--legacy-peer-deps" ];
   npmInstallFlags = [ "--legacy-peer-deps" ];
   dontNpmBuild = true;

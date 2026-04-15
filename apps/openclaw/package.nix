@@ -62,22 +62,6 @@ buildNpmPackage {
       done
     }
 
-    keep_only_children() {
-      local parent="$1"
-      shift
-      [ -d "$parent" ] || return 0
-
-      for child in "$parent"/*; do
-        [ -e "$child" ] || continue
-        local base
-        base="$(basename "$child")"
-        case " $* " in
-          *" $base "*) ;;
-          *) rm -rf "$child" ;;
-        esac
-      done
-    }
-
     prune_dev_dependencies "$PWD"
 
     mkdir -p "$out/libexec/openclaw" "$out/bin"
@@ -88,35 +72,76 @@ buildNpmPackage {
     rm -rf "$packageOut/node_modules/@discordjs/opus"/build-tmp-*
 
     ${lib.optionalString (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isx86_64 && !stdenv.hostPlatform.isMusl) ''
-      keep_only_children "$packageOut/node_modules/@img" \
-        colour \
-        sharp-libvips-linux-x64 \
-        sharp-linux-x64
+      # Keep JS runtime packages intact. Only prune prebuilt artifacts whose
+      # package names clearly target a non-x86_64-linux-gnu platform.
+      rm -rf \
+        "$packageOut/node_modules/@img/sharp-darwin-arm64" \
+        "$packageOut/node_modules/@img/sharp-darwin-x64" \
+        "$packageOut/node_modules/@img/sharp-libvips-darwin-arm64" \
+        "$packageOut/node_modules/@img/sharp-libvips-darwin-x64" \
+        "$packageOut/node_modules/@img/sharp-libvips-linux-arm" \
+        "$packageOut/node_modules/@img/sharp-libvips-linux-arm64" \
+        "$packageOut/node_modules/@img/sharp-libvips-linux-ppc64" \
+        "$packageOut/node_modules/@img/sharp-libvips-linux-riscv64" \
+        "$packageOut/node_modules/@img/sharp-libvips-linux-s390x" \
+        "$packageOut/node_modules/@img/sharp-libvips-linuxmusl-arm64" \
+        "$packageOut/node_modules/@img/sharp-libvips-linuxmusl-x64" \
+        "$packageOut/node_modules/@img/sharp-linux-arm" \
+        "$packageOut/node_modules/@img/sharp-linux-arm64" \
+        "$packageOut/node_modules/@img/sharp-linux-ppc64" \
+        "$packageOut/node_modules/@img/sharp-linux-riscv64" \
+        "$packageOut/node_modules/@img/sharp-linux-s390x" \
+        "$packageOut/node_modules/@img/sharp-linuxmusl-arm64" \
+        "$packageOut/node_modules/@img/sharp-linuxmusl-x64" \
+        "$packageOut/node_modules/@img/sharp-win32-arm64" \
+        "$packageOut/node_modules/@img/sharp-win32-ia32" \
+        "$packageOut/node_modules/@img/sharp-win32-x64" \
+        "$packageOut/node_modules/@lancedb/lancedb-darwin-arm64" \
+        "$packageOut/node_modules/@lancedb/lancedb-linux-arm64-gnu" \
+        "$packageOut/node_modules/@lancedb/lancedb-linux-arm64-musl" \
+        "$packageOut/node_modules/@lancedb/lancedb-linux-x64-musl" \
+        "$packageOut/node_modules/@lancedb/lancedb-win32-arm64-msvc" \
+        "$packageOut/node_modules/@lancedb/lancedb-win32-x64-msvc" \
+        "$packageOut/node_modules/@lydell/node-pty-darwin-arm64" \
+        "$packageOut/node_modules/@lydell/node-pty-darwin-x64" \
+        "$packageOut/node_modules/@lydell/node-pty-linux-arm64" \
+        "$packageOut/node_modules/@lydell/node-pty-win32-arm64" \
+        "$packageOut/node_modules/@lydell/node-pty-win32-x64" \
+        "$packageOut/node_modules/@mariozechner/clipboard-darwin-arm64" \
+        "$packageOut/node_modules/@mariozechner/clipboard-darwin-universal" \
+        "$packageOut/node_modules/@mariozechner/clipboard-darwin-x64" \
+        "$packageOut/node_modules/@mariozechner/clipboard-linux-arm64-gnu" \
+        "$packageOut/node_modules/@mariozechner/clipboard-linux-arm64-musl" \
+        "$packageOut/node_modules/@mariozechner/clipboard-linux-riscv64-gnu" \
+        "$packageOut/node_modules/@mariozechner/clipboard-linux-x64-musl" \
+        "$packageOut/node_modules/@mariozechner/clipboard-win32-arm64-msvc" \
+        "$packageOut/node_modules/@mariozechner/clipboard-win32-x64-msvc" \
+        "$packageOut/node_modules/@napi-rs/canvas-android-arm64" \
+        "$packageOut/node_modules/@napi-rs/canvas-darwin-arm64" \
+        "$packageOut/node_modules/@napi-rs/canvas-darwin-x64" \
+        "$packageOut/node_modules/@napi-rs/canvas-linux-arm-gnueabihf" \
+        "$packageOut/node_modules/@napi-rs/canvas-linux-arm64-gnu" \
+        "$packageOut/node_modules/@napi-rs/canvas-linux-arm64-musl" \
+        "$packageOut/node_modules/@napi-rs/canvas-linux-riscv64-gnu" \
+        "$packageOut/node_modules/@napi-rs/canvas-linux-x64-musl" \
+        "$packageOut/node_modules/@napi-rs/canvas-win32-arm64-msvc" \
+        "$packageOut/node_modules/@napi-rs/canvas-win32-x64-msvc" \
+        "$packageOut/node_modules/@snazzah/davey-android-arm-eabi" \
+        "$packageOut/node_modules/@snazzah/davey-android-arm64" \
+        "$packageOut/node_modules/@snazzah/davey-darwin-arm64" \
+        "$packageOut/node_modules/@snazzah/davey-darwin-x64" \
+        "$packageOut/node_modules/@snazzah/davey-freebsd-x64" \
+        "$packageOut/node_modules/@snazzah/davey-linux-arm-gnueabihf" \
+        "$packageOut/node_modules/@snazzah/davey-linux-arm64-gnu" \
+        "$packageOut/node_modules/@snazzah/davey-linux-arm64-musl" \
+        "$packageOut/node_modules/@snazzah/davey-linux-x64-musl" \
+        "$packageOut/node_modules/@snazzah/davey-win32-arm64-msvc" \
+        "$packageOut/node_modules/@snazzah/davey-win32-ia32-msvc" \
+        "$packageOut/node_modules/@snazzah/davey-win32-x64-msvc"
 
-      keep_only_children "$packageOut/node_modules/@lancedb" \
-        lancedb \
-        lancedb-linux-x64-gnu
-
-      keep_only_children "$packageOut/node_modules/@lydell" \
-        node-pty-linux-x64
-
-      keep_only_children "$packageOut/node_modules/@mariozechner" \
-        clipboard \
-        clipboard-linux-x64-gnu \
-        jiti \
-        pi-agent-core \
-        pi-ai \
-        pi-coding-agent \
-        pi-tui
-
-      keep_only_children "$packageOut/node_modules/@napi-rs" \
-        canvas-linux-x64-gnu
-
-      keep_only_children "$packageOut/node_modules/@snazzah" \
-        davey-linux-x64-gnu
-
-      keep_only_children "$packageOut/node_modules/koffi/build/koffi" \
-        linux_x64
+      if [ -d "$packageOut/node_modules/koffi/build/koffi" ]; then
+        find "$packageOut/node_modules/koffi/build/koffi" -mindepth 1 -maxdepth 1 ! -name linux_x64 -exec rm -rf {} +
+      fi
 
       rm -rf \
         "$packageOut/node_modules/lightningcss-linux-x64-musl" \

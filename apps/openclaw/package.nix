@@ -9,6 +9,7 @@
   nodejs,
   openssl,
   zlib,
+  libcap,
 }:
 
 let
@@ -160,6 +161,7 @@ buildNpmPackage {
     find "$packageOut/node_modules/.bin" -xtype l -delete 2>/dev/null || true
 
     makeWrapper ${nodejs}/bin/node "$out/bin/openclaw" \
+      --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ libcap ]}" \
       --add-flags "$out/libexec/openclaw/openclaw.mjs"
 
     runHook postInstall

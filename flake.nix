@@ -68,6 +68,8 @@
                   cd "${pkg}/libexec/openclaw"
                   ${pkgs.nodejs}/bin/node --input-type=module -e 'await import("@mariozechner/pi-ai/oauth"); console.log("pi-ai oauth import ok")'
                   ${pkg}/bin/openclaw skills list >/dev/null
+                  grep -q 'LD_LIBRARY_PATH' ${pkg}/bin/openclaw
+                  grep -q 'libcap' ${pkg}/bin/openclaw
                   touch "$out"
                 '';
               }

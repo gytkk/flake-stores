@@ -1,7 +1,5 @@
 {
   "update": {
-    "deny": [
-      "opencode"
-    ]
+    "deny": []
   }
 }

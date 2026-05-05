@@ -61,15 +61,15 @@
                 pkg = packageFor system "openclaw";
               in
               {
-                openclaw-smoke = pkgs.runCommand "openclaw-smoke" { nativeBuildInputs = [ pkgs.nodejs ]; } ''
+                openclaw-smoke = pkgs.runCommand "openclaw-smoke" { nativeBuildInputs = [ pkgs.nodejs pkgs.ripgrep ]; } ''
                   export HOME="$TMPDIR"
                   test -d "${pkg}/libexec/openclaw/skills"
-                  ${pkgs.nodejs}/bin/node -e 'import("file://${pkg}/libexec/openclaw/node_modules/sharp/lib/index.js").then(() => console.log("sharp import ok")).catch((err) => { console.error(err); process.exit(1); })'
                   cd "${pkg}/libexec/openclaw"
+                  ${pkgs.nodejs}/bin/node --input-type=module -e 'await import("@napi-rs/canvas"); console.log("canvas import ok")'
                   ${pkgs.nodejs}/bin/node --input-type=module -e 'await import("@mariozechner/pi-ai/oauth"); console.log("pi-ai oauth import ok")'
                   ${pkg}/bin/openclaw skills list >/dev/null
-                  grep -q 'LD_LIBRARY_PATH' ${pkg}/bin/openclaw
-                  grep -q 'libcap' ${pkg}/bin/openclaw
+                  rg -q 'LD_LIBRARY_PATH' ${pkg}/bin/openclaw
+                  rg -q 'libcap' ${pkg}/bin/openclaw
                   touch "$out"
                 '';
               }

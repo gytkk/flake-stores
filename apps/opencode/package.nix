@@ -9,31 +9,31 @@
 }:
 
 let
-  version = "1.14.48";
+  version = "1.14.49";
 
   platformMap = {
     "aarch64-darwin" = {
       suffix = "darwin-arm64";
       ext = "zip";
-      hash = "sha256-otKQAYcKp73WxZ2hDzOntAexV+32mTllUjmp1QhZFU0=";
+      hash = "sha256-Ipan5iTtRIC/QKzELIL4khuw+xnozg9Zem2+1eNNdT8=";
     };
 
     "x86_64-darwin" = {
       suffix = "darwin-x64";
       ext = "zip";
-      hash = "sha256-gLXBWhwv5yBGVutHhgPLj9Oi3B9zM9fhmR2kQXi6cGM=";
+      hash = "sha256-T7wc9UTfa+88Zz/wj2OflLfe2Zi14/5tppN8VoQtNTI=";
     };
 
     "x86_64-linux" = {
       suffix = "linux-x64";
       ext = "tar.gz";
-      hash = "sha256-TkONfu8rGtL5s+1zEhlEe5be4ff9oua5dCmG1lR4ubI=";
+      hash = "sha256-XeTrzlLMNg6dIfbcBl2H6PAn/CQhJVulFsuI8pbO2g8=";
     };
 
     "aarch64-linux" = {
       suffix = "linux-arm64";
       ext = "tar.gz";
-      hash = "sha256-jAIxBcVWIhRW4SBUTZqDmli5or0rl4dDiE+wWjtRB78=";
+      hash = "sha256-ZcGqVNoX9ZXFG1LdrpWosipDGwlgzUtcEPQzr9GAy24=";
     };
   };
 

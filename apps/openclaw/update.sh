@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PACKAGE_NIX="$SCRIPT_DIR/package.nix"
-LOCKFILE="$SCRIPT_DIR/package-lock.json"
+LOCKFILE="$SCRIPT_DIR/npm-shrinkwrap.json"
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -26,7 +26,7 @@ if [ -z "$LATEST" ] || [ "$LATEST" = "null" ] || [ -z "$INTEGRITY" ] || [ "$INTE
   exit 1
 fi
 
-readarray -t CURRENT_VALUES < <(python3 - "$PACKAGE_NIX" <<'PY'
+CURRENT_VALUES=$(python3 - "$PACKAGE_NIX" <<'PY'
 import pathlib
 import re
 import sys
@@ -37,17 +37,19 @@ patterns = [
     r'hash = "([^"]+)";',
     r'npmDepsHash = "([^"]+)";',
 ]
+values = []
 for pattern in patterns:
     match = re.search(pattern, text)
     if not match:
         raise SystemExit(f"missing pattern: {pattern}")
-    print(match.group(1))
+    values.append(match.group(1))
+print("|".join(values))
 PY
 )
 
-CURRENT="${CURRENT_VALUES[0]}"
-CURRENT_SRC_HASH="${CURRENT_VALUES[1]}"
-CURRENT_NPM_HASH="${CURRENT_VALUES[2]}"
+IFS='|' read -r CURRENT CURRENT_SRC_HASH CURRENT_NPM_HASH <<EOF
+$CURRENT_VALUES
+EOF
 
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "$WORKDIR"' EXIT
@@ -57,7 +59,14 @@ PKG=$(npm pack --silent "openclaw@$LATEST")
 tar xzf "$PKG"
 cd package
 npm install --omit=dev --package-lock-only --ignore-scripts --no-audit --no-fund --legacy-peer-deps >/dev/null
-cp package-lock.json "$LOCKFILE"
+if [ -f npm-shrinkwrap.json ]; then
+  cp npm-shrinkwrap.json "$LOCKFILE"
+elif [ -f package-lock.json ]; then
+  cp package-lock.json "$LOCKFILE"
+else
+  echo "ERROR: npm did not generate a lockfile for openclaw@$LATEST" >&2
+  exit 1
+fi
 
 NEW_NPM_HASH=$(nix shell --inputs-from "$REPO_ROOT" nixpkgs#prefetch-npm-deps -c prefetch-npm-deps "$LOCKFILE")
 
@@ -83,4 +92,4 @@ PY
 rg -n 'version = |hash = |npmDepsHash = ' "$PACKAGE_NIX" >/dev/null
 
 echo "Updated package.nix to version $LATEST"
-echo "Updated package-lock.json"
+echo "Updated npm-shrinkwrap.json"

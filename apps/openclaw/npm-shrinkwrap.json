@@ -605,14 +605,14 @@
       }
     },
     "node_modules/@babel/generator": {
-      "version": "8.0.0-rc.5",
-      "resolved": "https://registry.npmjs.org/@babel/generator/-/generator-8.0.0-rc.5.tgz",
-      "integrity": "sha512-nFZPWz3FHIS7y6rMIVoa/WBwjdutfIaRJIBQjzn+t3RnecZoRNlGmGcyR2wb0T/IgSd50Kz/6dG8/LvMCRunjg==",
+      "version": "8.0.0-rc.6",
+      "resolved": "https://registry.npmjs.org/@babel/generator/-/generator-8.0.0-rc.6.tgz",
+      "integrity": "sha512-6mIzgVK8DgEzvIapoQwhXTMnnkuE4STQmVv9H03i/tZ2ml8oev3TRvZJgTenK2Bsq0YWNtzOrFdTyNzCMFtjJQ==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
-        "@babel/parser": "^8.0.0-rc.5",
-        "@babel/types": "^8.0.0-rc.5",
+        "@babel/parser": "^8.0.0-rc.6",
+        "@babel/types": "^8.0.0-rc.6",
         "@jridgewell/gen-mapping": "^0.3.12",
         "@jridgewell/trace-mapping": "^0.3.28",
         "@types/jsesc": "^2.5.0",
@@ -10354,15 +10354,15 @@
       }
     },
     "node_modules/rolldown-plugin-dts": {
-      "version": "0.25.1",
-      "resolved": "https://registry.npmjs.org/rolldown-plugin-dts/-/rolldown-plugin-dts-0.25.1.tgz",
-      "integrity": "sha512-zK82aC/8z1iVW+g0bCnlQZq04Y5bNeL/RcRwTYBwsnU6wH0N+6vpIFkN7JC0kYRS5qKA+pxQyfIPvXJ6Q5xSpQ==",
+      "version": "0.25.2",
+      "resolved": "https://registry.npmjs.org/rolldown-plugin-dts/-/rolldown-plugin-dts-0.25.2.tgz",
+      "integrity": "sha512-nMhN/R+vmR8GM45ZW1FWMSjRTSDDn/6w4GTf8RNrEFCBdl8B1kySWrU1ixPtbwzXoRlcO+R/S88VgXuJQwfdDg==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
-        "@babel/generator": "8.0.0-rc.5",
-        "@babel/helper-validator-identifier": "8.0.0-rc.5",
-        "@babel/parser": "8.0.0-rc.4",
+        "@babel/generator": "8.0.0-rc.6",
+        "@babel/helper-validator-identifier": "8.0.0-rc.6",
+        "@babel/parser": "8.0.0-rc.6",
         "ast-kit": "^3.0.0-beta.1",
         "birpc": "^4.0.0",
         "dts-resolver": "^3.0.0",
@@ -10408,9 +10408,9 @@
       }
     },
     "node_modules/rolldown-plugin-dts/node_modules/@babel/helper-validator-identifier": {
-      "version": "8.0.0-rc.5",
-      "resolved": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-8.0.0-rc.5.tgz",
-      "integrity": "sha512-ehJDxHvtbZ85RtX/L2fi0h9AGsBNqB5Euv1EB8RMAvGYvD+2X+QbpzzOpbklnNXO+WSZJNOaetw2BBj27xsWVg==",
+      "version": "8.0.0-rc.6",
+      "resolved": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-8.0.0-rc.6.tgz",
+      "integrity": "sha512-nVJ+1JcCgntv8d78rRo++o2wuODT0Irknx2BF8Np4Ft2CRgjLqIs4qzSZ8b66yGbBdMWGmZBO9WEZv1hhNiSpg==",
       "dev": true,
       "license": "MIT",
       "engines": {
@@ -10418,19 +10418,19 @@
       }
     },
     "node_modules/rolldown-plugin-dts/node_modules/@babel/parser": {
-      "version": "8.0.0-rc.4",
-      "resolved": "https://registry.npmjs.org/@babel/parser/-/parser-8.0.0-rc.4.tgz",
-      "integrity": "sha512-0S/1yefMa15N4i2v3t8Fw9pgMHhf2gF6Lc1UEXI96Ls6FNAjqvHHZouZ2ZS/deqLhbMFtmfVeFac6iTsvFbLwA==",
+      "version": "8.0.0-rc.6",
+      "resolved": "https://registry.npmjs.org/@babel/parser/-/parser-8.0.0-rc.6.tgz",
+      "integrity": "sha512-rOS8IpdO7mQELkTPlCsTgPejO0bFuZdEDCGQJouYbYf9e1FLTym7Fei2pEjq8q7MWbX0ravcd7QQYKs1TxOuog==",
       "dev": true,
       "license": "MIT",
       "dependencies": {
-        "@babel/types": "^8.0.0-rc.4"
+        "@babel/types": "^8.0.0-rc.6"
       },
       "bin": {
         "parser": "bin/babel-parser.js"
       },
       "engines": {
-        "node": "^20.19.0 || >=22.12.0"
+        "node": "^22.18.0 || >=24.11.0"
       }
     },
     "node_modules/rolldown-plugin-dts/node_modules/@babel/types": {
@@ -10443,16 +10443,6 @@
         "@babel/helper-string-parser": "^8.0.0-rc.6",
         "@babel/helper-validator-identifier": "^8.0.0-rc.6"
       },
-      "engines": {
-        "node": "^22.18.0 || >=24.11.0"
-      }
-    },
-    "node_modules/rolldown-plugin-dts/node_modules/@babel/types/node_modules/@babel/helper-validator-identifier": {
-      "version": "8.0.0-rc.6",
-      "resolved": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-8.0.0-rc.6.tgz",
-      "integrity": "sha512-nVJ+1JcCgntv8d78rRo++o2wuODT0Irknx2BF8Np4Ft2CRgjLqIs4qzSZ8b66yGbBdMWGmZBO9WEZv1hhNiSpg==",
-      "dev": true,
-      "license": "MIT",
       "engines": {
         "node": "^22.18.0 || >=24.11.0"
       }

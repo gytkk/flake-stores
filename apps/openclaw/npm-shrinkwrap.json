@@ -6428,9 +6428,9 @@
       }
     },
     "node_modules/jsdom/node_modules/undici": {
-      "version": "7.26.0",
-      "resolved": "https://registry.npmjs.org/undici/-/undici-7.26.0.tgz",
-      "integrity": "sha512-3O9Tf67pGhgOv9jM35AbhkXAKi13f3oy3aE4CSgr+TckGeY+/iu97ZXN+J7DpHPzLbVApFd1IFhcnBjREYXYcg==",
+      "version": "7.27.0",
+      "resolved": "https://registry.npmjs.org/undici/-/undici-7.27.0.tgz",
+      "integrity": "sha512-+t2Z/GwkZQDtu00813aP66ygViGtPHKhhoFZpQKpKrE+9jIgES+Zw+mFNaDWOVRKiuJjuqKHzD3B1sfGg8+ZOQ==",
       "dev": true,
       "license": "MIT",
       "engines": {
@@ -8718,9 +8718,9 @@
       }
     },
     "node_modules/property-information": {
-      "version": "7.1.0",
-      "resolved": "https://registry.npmjs.org/property-information/-/property-information-7.1.0.tgz",
-      "integrity": "sha512-TwEZ+X+yCJmYfL7TPUOcvBZ4QfoT5YenQiJuX//0th53DE6w0xxLEtfK3iyryQFddXuvkIk51EEgrJQ0WJkOmQ==",
+      "version": "7.2.0",
+      "resolved": "https://registry.npmjs.org/property-information/-/property-information-7.2.0.tgz",
+      "integrity": "sha512-IAtzIB6sUiWaJYrX9smp3V46pBGbBeLFRGdh25kg1334VcBlD8HzhPeNIWQH9zhGmo2itIe25EHt9dQP7G5hmg==",
       "dev": true,
       "license": "MIT",
       "funding": {

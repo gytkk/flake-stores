@@ -35,7 +35,7 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 | App | Version |
 |-----|---------|
 | agent-browser | 0.27.1 |
-| claude-code | 2.1.162 |
+| claude-code | 2.1.163 |
 | codex | 0.137.0 |
 | openclaw | 2026.6.1 |
 | opencode | 1.15.13 |

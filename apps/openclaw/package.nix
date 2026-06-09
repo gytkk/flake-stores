@@ -13,18 +13,18 @@
 }:
 
 let
-  version = "2026.6.1";
+  version = "2026.6.5";
 
   src = fetchurl {
     url = "https://registry.npmjs.org/openclaw/-/openclaw-${version}.tgz";
-    hash = "sha512-rGSwhIo8N37cQQ5puG8vmWZESE8q/ych5VFpzOQNcf49TF/rvCYyxiNAyot11qbUZF5wfLh8bsvofapnOEh0BQ==";
+    hash = "sha512-sRgF0TexfRcJX8Eg0lcL6Jj0YdZbSxUbbp8EbG+qo3v6TtVayE6tKPEs3oCKD7YfYe2C/8Qg26HUxTnycd44ZQ==";
   };
 in
 buildNpmPackage {
   pname = "openclaw";
   inherit version src;
 
-  npmDepsHash = "sha256-aQQckH5uyApYEzav3NAlyTYX8E13YtJz7sHESGVNhbc=";
+  npmDepsHash = "sha256-WqPh5Cvt2H/HMoZKNB2XSSJben0nwsOPHuht8h5w+vk=";
   sourceRoot = "package";
   makeCacheWritable = true;
   npmFlags = [ "--legacy-peer-deps" ];

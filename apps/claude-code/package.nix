@@ -12,29 +12,29 @@
 }:
 
 let
-  version = "2.1.172";
+  version = "2.1.173";
 
   baseUrl = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases";
 
   platformMap = {
     "aarch64-darwin" = {
       suffix = "darwin-arm64";
-      hash = "sha256-PDHzRVdb9vJhx+GZgfZJG7k+6w/7SZ6VAzYQpxhIMc4=";
+      hash = "sha256-I1wbrNzH+djZI2jJWgxmwm/KyY+HjyGxDHOvNAvDMas=";
     };
 
     "x86_64-darwin" = {
       suffix = "darwin-x64";
-      hash = "sha256-xQf5h1DFIw5CR/fq3/OOTbBMAGkE+FN54xxdXoLhw4Q=";
+      hash = "sha256-WjXB3isTJF6bO9csTfTwaK3OFPbUF6P2i/C7Q3InFoc=";
     };
 
     "x86_64-linux" = {
       suffix = "linux-x64";
-      hash = "sha256-wJFd0WkdVpruvHl4sS4ClxgyNoXsDdS1xqRTEI1r4fc=";
+      hash = "sha256-z36hlOF0iTL6MPGA6qn1b5pwOdzjcDApiMKSZimyohk=";
     };
 
     "aarch64-linux" = {
       suffix = "linux-arm64";
-      hash = "sha256-TvDXNb1BgMO//DgfbcON+XkimoY30pS+dRxgQ9k9EuE=";
+      hash = "sha256-zFk9/CY/cH7SIuM0/1wSqa3cJKvCBnaJYvnQY7L9esk=";
     };
   };
 

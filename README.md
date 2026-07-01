@@ -16,7 +16,13 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 │   ├── codex
 │   │   ├── package.nix
 │   │   └── update.sh
-│   └── opencode
+│   ├── openclaw
+│   │   ├── package.nix
+│   │   └── update.sh
+│   ├── opencode
+│   │   ├── package.nix
+│   │   └── update.sh
+│   └── pi
 │       ├── package.nix
 │       └── update.sh
 ├── .github/workflows
@@ -39,6 +45,7 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 | codex | 0.142.4 |
 | openclaw | 2026.6.11 |
 | opencode | 1.17.12 |
+| pi | 0.80.3 |
 
 ## Build entrypoints
 

@@ -1,0 +1,39 @@
+name: Codex Binary Drift
+
+# Alert when a codex release adds a bin/ binary to the official codex-package
+# bundle that apps/codex/package.nix does not install (see check-drift.sh).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC
+  pull_request:
+    paths:
+      - "apps/codex/**"
+      - ".github/workflows/codex-drift.yml"
+  # Re-check right after the scheduled version bump lands (the bot push that
+  # update.yml makes does not itself trigger `push`/`pull_request` workflows).
+  workflow_run:
+    workflows: ["Update App Versions"]
+    types: [completed]
+
+jobs:
+  drift:
+    name: Check codex-package drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Check drift
+        run: |
+          chmod +x apps/codex/check-drift.sh
+          apps/codex/check-drift.sh 2>&1 | tee drift.log
+          rc=${PIPESTATUS[0]}
+          {
+            echo '```'
+            cat drift.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"

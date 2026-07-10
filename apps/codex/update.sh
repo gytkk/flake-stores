@@ -29,31 +29,42 @@ declare -A PLATFORM_TARGET=(
   ["aarch64-linux"]="aarch64-unknown-linux-musl"
 )
 
+# field name in package.nix -> release asset prefix
+declare -A ASSET_PREFIX=(
+  ["codexHash"]="codex"
+  ["codeModeHostHash"]="codex-code-mode-host"
+)
+
 declare -A HASHES
 for system in aarch64-darwin x86_64-darwin x86_64-linux aarch64-linux; do
   target="${PLATFORM_TARGET[$system]}"
-  asset="codex-${target}.tar.gz"
 
-  echo "Reading hash for $system..."
-  digest=$(jq -er --arg asset "$asset" '.assets[] | select(.name == $asset) | .digest' <<< "$RELEASE_JSON") || {
-    echo "ERROR: No release asset digest found for $asset"
-    exit 1
-  }
+  echo "Reading hashes for $system..."
+  for field in codexHash codeModeHostHash; do
+    asset="${ASSET_PREFIX[$field]}-${target}.tar.gz"
 
-  sri_hash=$(nix hash convert --to sri "$digest")
+    digest=$(jq -er --arg asset "$asset" '.assets[] | select(.name == $asset) | .digest' <<< "$RELEASE_JSON") || {
+      echo "ERROR: No release asset digest found for $asset"
+      exit 1
+    }
 
-  HASHES[$system]="$sri_hash"
-  echo "  $system: $sri_hash"
+    sri_hash=$(nix hash convert --to sri "$digest")
+
+    HASHES["$system:$field"]="$sri_hash"
+    echo "  $system $field: $sri_hash"
+  done
 done
 
 sed -i "s/version = \"$CURRENT\"/version = \"$LATEST\"/" "$PACKAGE_NIX"
 
 for system in aarch64-darwin x86_64-darwin x86_64-linux aarch64-linux; do
-  old_hash=$(rg -A3 "\"$system\"" "$PACKAGE_NIX" | rg 'hash = ' | sed 's/.*"\(.*\)".*/\1/')
-  new_hash="${HASHES[$system]}"
-  if [ -n "$old_hash" ] && [ -n "$new_hash" ]; then
-    sed -i "s|$old_hash|$new_hash|" "$PACKAGE_NIX"
-  fi
+  for field in codexHash codeModeHostHash; do
+    old_hash=$(rg -A4 "\"$system\"" "$PACKAGE_NIX" | rg "$field = " | sed 's/.*"\(.*\)".*/\1/')
+    new_hash="${HASHES["$system:$field"]}"
+    if [ -n "$old_hash" ] && [ -n "$new_hash" ]; then
+      sed -i "s|$old_hash|$new_hash|" "$PACKAGE_NIX"
+    fi
+  done
 done
 
 echo "Updated package.nix to version $LATEST"

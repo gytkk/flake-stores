@@ -11,31 +11,31 @@
 }:
 
 let
-  version = "0.144.3";
+  version = "0.144.4";
 
   platformMap = {
     "aarch64-darwin" = {
       target = "aarch64-apple-darwin";
-      codexHash = "sha256-JJqvEmRK3Th250CZjLoOrI19F16QOt2MvI2Oqh8C4rU=";
-      codeModeHostHash = "sha256-Jw/+9mEDVFVJZc/NZ9JsQuc2+d21X8PYZ/dSUlEQFaQ=";
+      codexHash = "sha256-d8iWmkgTAvnbHZ6ipsIcCDq64/Go/Ipyddw4MjaZOR4=";
+      codeModeHostHash = "sha256-o0KbpqbWWkym8ywpLTXw2gZ2UfwPgzPc+kKnw7a119k=";
     };
 
     "x86_64-darwin" = {
       target = "x86_64-apple-darwin";
-      codexHash = "sha256-igGRESKH4GhqqvGz2uz0y78jvg4BNPo8ibD2i+vcqqI=";
-      codeModeHostHash = "sha256-FzRv9bi++OsZaKPxioyXoTnhWEAIFr5J+lEKi5CfCzY=";
+      codexHash = "sha256-J06kkxJGYh1HetYdYeozA1J4eOd/qRAIffUhU/XmGI4=";
+      codeModeHostHash = "sha256-S0noOKsdZt1P7PyANBGmtjUiW6S/j+JkjTFROFUSmA0=";
     };
 
     "x86_64-linux" = {
       target = "x86_64-unknown-linux-musl";
-      codexHash = "sha256-ubSujptWHGTfvF71LGMZy6dQrIfePH9ViFAmIx466ok=";
-      codeModeHostHash = "sha256-NnURRlACC9c5RoTgXWYNYEPucZkI+DnooLv2sTu/ZP4=";
+      codexHash = "sha256-N8mFvp2J6MT0OzqgWUwSE+rCEtMK4rlSIfCP7IB1FdE=";
+      codeModeHostHash = "sha256-MClBvtb7PIgp3eX+coZO4ERm7sFiPHO0PNRL8vr+gDg=";
     };
 
     "aarch64-linux" = {
       target = "aarch64-unknown-linux-musl";
-      codexHash = "sha256-3XbP1aLPm88OMiSv4o4jBlz9JyYuBuD/vI+kA0PwkFo=";
-      codeModeHostHash = "sha256-yxx6NPVm6W3K2fuq7Yp6D1XaxEj+C22ewLQgt0Xjifo=";
+      codexHash = "sha256-TQckPvSuZ4a4syHXrqP5vk4dLFl65UB+fBuYczNAgrI=";
+      codeModeHostHash = "sha256-y2nctK5lcykENf5Wch8f7VgPlpl9JY81Nv/hjQX6a48=";
     };
   };
 

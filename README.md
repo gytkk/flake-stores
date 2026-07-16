@@ -44,8 +44,8 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 | claude-code | 2.1.211 |
 | codex | 0.144.5 |
 | openclaw | 2026.7.1 |
-| opencode | 1.18.2 |
-| pi | 0.80.7 |
+| opencode | 1.18.3 |
+| pi | 0.80.8 |
 
 ## Build entrypoints
 

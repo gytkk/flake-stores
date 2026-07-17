@@ -144,9 +144,9 @@
       }
     },
     "node_modules/@a2ui/web_core": {
-      "version": "0.10.4",
-      "resolved": "https://registry.npmjs.org/@a2ui/web_core/-/web_core-0.10.4.tgz",
-      "integrity": "sha512-sahOUSKZIGv9ZtnHjfzWR8o/F1XfSTp4sQAX5/auSenQYBYDRaY0+vrZIkddc/IEzpXJob6cFJT2r5/mLzAvqg==",
+      "version": "0.10.5",
+      "resolved": "https://registry.npmjs.org/@a2ui/web_core/-/web_core-0.10.5.tgz",
+      "integrity": "sha512-q+HyK1V/jM8l+/VmuXRbBNCS9yDguqdjsJ7/8aqY9O/WUdRE14FbhkFyQyGWQNqPJa9QbVfQyAjGQIK0B1aQtg==",
       "dev": true,
       "license": "Apache-2.0",
       "dependencies": {

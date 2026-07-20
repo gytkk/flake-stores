@@ -21,7 +21,7 @@ buildNpmPackage {
   pname = "pi";
   inherit version src;
 
-  npmDepsHash = "sha256-bFazG3AARKZP//lyslKkJgpEr0sdrRKVRXKK6zkfGdY=";
+  npmDepsHash = "sha256-wO78YFCiTEJGih5gdmep4B5rsZMP3tat737S4dO1kow=";
   sourceRoot = "package";
   makeCacheWritable = true;
   npmInstallFlags = [

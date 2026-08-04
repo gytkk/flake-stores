@@ -44,11 +44,11 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 | App | Version |
 |-----|---------|
 | agent-browser | 0.33.2 |
-| claude-code | 2.1.220 |
+| claude-code | 2.1.221 |
 | codex | 0.146.0 |
 | kimi-code | 0.31.1 |
 | openclaw | 2026.7.1-2 |
-| opencode | 1.18.11 |
+| opencode | 1.18.12 |
 | pi | 0.83.0 |
 
 ## Build entrypoints

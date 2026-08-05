@@ -48,7 +48,7 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 | codex | 0.146.1 |
 | kimi-code | 0.33.0 |
 | openclaw | 2026.7.1-2 |
-| opencode | 1.18.13 |
+| opencode | 1.18.14 |
 | pi | 0.83.0 |
 
 ## Build entrypoints

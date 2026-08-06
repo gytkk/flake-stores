@@ -6,11 +6,6 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PACKAGE_NIX="$SCRIPT_DIR/package.nix"
 LOCKFILE="$SCRIPT_DIR/npm-shrinkwrap.json"
 PACKAGE_NAME="@earendil-works/pi-coding-agent"
-INTERNAL_PACKAGES=(
-  "@earendil-works/pi-agent-core"
-  "@earendil-works/pi-ai"
-  "@earendil-works/pi-tui"
-)
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -58,21 +53,32 @@ else
   exit 1
 fi
 
-for internal_package in "${INTERNAL_PACKAGES[@]}"; do
-  internal_integrity=$(npm view "$internal_package@$LATEST" dist.integrity --json | jq -r '.')
+missing_internal_integrity=$(jq -r '
+  .packages
+  | to_entries[]
+  | select(.key | startswith("node_modules/@earendil-works/"))
+  | select((.value.resolved // "") != "" and (.value.integrity // "") == "")
+  | [.key, .value.version]
+  | @tsv
+' "$LOCKFILE")
+
+while IFS=$'\t' read -r package_key package_version; do
+  [ -n "$package_key" ] || continue
+  internal_package=${package_key#node_modules/}
+  internal_integrity=$(npm view "$internal_package@$package_version" dist.integrity --json | jq -r '.')
   if [ -z "$internal_integrity" ] || [ "$internal_integrity" = "null" ]; then
-    echo "ERROR: failed to fetch npm integrity for $internal_package@$LATEST" >&2
+    echo "ERROR: failed to fetch npm integrity for $internal_package@$package_version" >&2
     exit 1
   fi
 
   tmp_lockfile=$(mktemp)
   jq \
-    --arg key "node_modules/$internal_package" \
+    --arg key "$package_key" \
     --arg integrity "$internal_integrity" \
     '.packages[$key].integrity = $integrity' \
     "$LOCKFILE" > "$tmp_lockfile"
   mv "$tmp_lockfile" "$LOCKFILE"
-done
+done <<< "$missing_internal_integrity"
 
 missing_integrity=$(jq -r '.packages | to_entries[] | select((.value.resolved // "") != "" and (.value.integrity // "") == "") | .key' "$LOCKFILE")
 if [ -n "$missing_integrity" ]; then

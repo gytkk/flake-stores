@@ -6,6 +6,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 PACKAGE_NIX="$SCRIPT_DIR/package.nix"
 LOCKFILE="$SCRIPT_DIR/npm-shrinkwrap.json"
 PACKAGE_NAME="@earendil-works/pi-coding-agent"
+GITHUB_REPOSITORY="earendil-works/pi"
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -14,16 +15,16 @@ require_cmd() {
   }
 }
 
-for cmd in npm jq nix perl rg mktemp tar; do
+for cmd in curl npm jq nix perl rg mktemp tar; do
   require_cmd "$cmd"
 done
 
-LATEST_JSON=$(npm view "$PACKAGE_NAME" version dist.integrity --json)
-LATEST=$(echo "$LATEST_JSON" | jq -r '.version')
-INTEGRITY=$(echo "$LATEST_JSON" | jq -r '."dist.integrity"')
+RELEASE_JSON=$(curl -fsSL "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
+TAG=$(echo "$RELEASE_JSON" | jq -r '.tag_name')
+LATEST="${TAG#v}"
 
-if [ -z "$LATEST" ] || [ "$LATEST" = "null" ] || [ -z "$INTEGRITY" ] || [ "$INTEGRITY" = "null" ]; then
-  echo "ERROR: failed to fetch latest npm metadata for $PACKAGE_NAME" >&2
+if [ -z "$LATEST" ] || [ "$LATEST" = "null" ] || [ "$TAG" != "v$LATEST" ]; then
+  echo "ERROR: failed to fetch the latest release from $GITHUB_REPOSITORY" >&2
   exit 1
 fi
 
@@ -37,8 +38,17 @@ if [ -z "$CURRENT" ] || [ -z "$CURRENT_SRC_HASH" ] || [ -z "$CURRENT_NPM_HASH" ]
 fi
 
 if [ "$LATEST" = "$CURRENT" ]; then
-  echo "Already at latest version: $LATEST"
+  echo "Already at latest GitHub release: $LATEST"
   exit 0
+fi
+
+PACKAGE_JSON=$(npm view "$PACKAGE_NAME@$LATEST" version dist.integrity --json)
+PUBLISHED_VERSION=$(echo "$PACKAGE_JSON" | jq -r '.version')
+INTEGRITY=$(echo "$PACKAGE_JSON" | jq -r '."dist.integrity"')
+
+if [ "$PUBLISHED_VERSION" != "$LATEST" ] || [ -z "$INTEGRITY" ] || [ "$INTEGRITY" = "null" ]; then
+  echo "ERROR: npm package $PACKAGE_NAME@$LATEST is unavailable or incomplete" >&2
+  exit 1
 fi
 
 WORKDIR=$(mktemp -d)

@@ -36,6 +36,11 @@ if [ -z "$CURRENT" ] || [ -z "$CURRENT_SRC_HASH" ] || [ -z "$CURRENT_NPM_HASH" ]
   exit 1
 fi
 
+if [ "$LATEST" = "$CURRENT" ]; then
+  echo "Already at latest version: $LATEST"
+  exit 0
+fi
+
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "$WORKDIR"' EXIT
 

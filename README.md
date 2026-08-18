@@ -50,7 +50,7 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 | claude-code | 2.1.234 |
 | codex | 0.147.0 |
 | herdr | 0.8.0 |
-| kimi-code | 0.37.0 |
+| kimi-code | 0.37.1 |
 | openclaw | 2026.7.1-2 |
 | opencode | 1.18.18 |
 | pi | 0.84.2 |

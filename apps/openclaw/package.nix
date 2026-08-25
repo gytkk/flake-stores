@@ -24,7 +24,7 @@ buildNpmPackage {
   pname = "openclaw";
   inherit version src;
 
-  npmDepsHash = "sha256-Pp9nlseaPD41sMur9EwpyIAiNscwFZmecWQ7hbS5IXo=";
+  npmDepsHash = "sha256-enYIY1MvpLhZqLXwDM2OcrCh/aeMgasOmijTJubSaHU=";
   sourceRoot = "package";
   makeCacheWritable = true;
   npmFlags = [ "--legacy-peer-deps" ];

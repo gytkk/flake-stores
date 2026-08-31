@@ -1,6 +1,11 @@
 # flake-stores
 
-Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
+This repository is a frozen archive of the non-nixpkgs app packages formerly consumed by `gytkk/nix-flakes`.
+
+> [!IMPORTANT]
+> Active package definitions, manual update scripts, and read-only CI moved to [`gytkk/nix-flakes/packages/apps`](https://github.com/gytkk/nix-flakes/tree/08dc4ea315de58ee6f6cc9892dae56d799a298f1/packages/apps) in [`08dc4ea`](https://github.com/gytkk/nix-flakes/commit/08dc4ea315de58ee6f6cc9892dae56d799a298f1). Make future package changes there.
+
+The source and history remain here for reference. This repository no longer runs CI or automated package updates.
 
 ## Layout
 
@@ -28,9 +33,6 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 │   └── pi
 │       ├── package.nix
 │       └── update.sh
-├── .github/workflows
-│   ├── ci.yml
-│   └── update.yml
 ├── flake.nix
 ├── scripts
 │   ├── sync-readme-versions.sh
@@ -57,21 +59,6 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 - `nix build .#packages.<system>.default` (same as first app)
 - `nix run .#apps.<system>.opencode`
 
-## Adding new apps
+## Maintenance status
 
-To add a new app package:
-
-1. Create `apps/<app-name>/package.nix`.
-2. Use `callPackage` arguments available from nixpkgs (`stdenvNoCC`, `fetchzip`, etc.).
-3. Ensure the package path creates a `meta.mainProgram` if the package should be run via `nix run`.
-4. Add `apps/<app-name>/update.sh` if you want automatic version updates.
-5. Optionally export additional metadata files later if needed.
-
-To disable automatic updates for an app, add its name to the `update.deny` list in `settings.json`.
-
-The flake discovers app directories automatically, so no extra flake changes are required.
-
-## CI behavior
-
-- **CI**: changed-app build matrix for `pull_request`, `push`, and manual runs.
-- **Update workflow**: runs every 3 hours, on push, and manual trigger; updates all app update scripts that exist, builds changed packages, and commits updates.
+This snapshot remains buildable for historical reference, but it is not maintained. Use the `packages/apps` catalog in `gytkk/nix-flakes` for builds, updates, and new packages.

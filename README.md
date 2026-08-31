@@ -22,9 +22,6 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 │   ├── kimi-code
 │   │   ├── package.nix
 │   │   └── update.sh
-│   ├── openclaw
-│   │   ├── package.nix
-│   │   └── update.sh
 │   ├── opencode
 │   │   ├── package.nix
 │   │   └── update.sh
@@ -51,7 +48,6 @@ Monorepo for non-nixpkgs app packages consumed by `gytkk/nix-flakes`.
 | codex | 0.151.0 |
 | herdr | 0.8.2 |
 | kimi-code | 0.39.1 |
-| openclaw | 2026.7.1-2 |
 | opencode | 1.18.25 |
 | pi | 0.84.4 |
 

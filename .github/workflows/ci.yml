@@ -44,7 +44,10 @@ jobs:
           if [ -n "$BASE_SHA" ]; then
             mapfile -t changed_apps < <(git diff --name-only "$BASE_SHA" "${{ github.sha }}" |
               awk -F/ '$1 == "apps" {print $2}' |
-              sort -u)
+              sort -u |
+              while IFS= read -r app; do
+                [ -d "apps/$app" ] && printf '%s\n' "$app"
+              done)
           fi
 
           all_apps=()

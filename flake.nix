@@ -19,10 +19,14 @@
 
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f system);
 
-      pkgsFor = system: import nixpkgs { inherit system; config.allowUnfree = true; };
+      pkgsFor =
+        system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
 
-      packageFor =
-        system: name: ((pkgsFor system).callPackage ./apps/${name}/package.nix { });
+      packageFor = system: name: ((pkgsFor system).callPackage ./apps/${name}/package.nix { });
 
       mkPackages =
         system:
@@ -48,35 +52,14 @@
       mkChecks =
         system:
         let
-          pkgs = pkgsFor system;
           buildChecks = builtins.listToAttrs (
             map (name: {
               name = "${name}-build";
               value = packageFor system name;
             }) appNames
           );
-          openclawSmoke =
-            if system == "x86_64-linux" && builtins.elem "openclaw" appNames then
-              let
-                pkg = packageFor system "openclaw";
-              in
-              {
-                openclaw-smoke = pkgs.runCommand "openclaw-smoke" { nativeBuildInputs = [ pkgs.nodejs pkgs.ripgrep ]; } ''
-                  export HOME="$TMPDIR"
-                  test -d "${pkg}/libexec/openclaw/skills"
-                  cd "${pkg}/libexec/openclaw"
-                  ${pkgs.nodejs}/bin/node --input-type=module -e 'await import("@napi-rs/canvas"); console.log("canvas import ok")'
-                  ${pkgs.nodejs}/bin/node --input-type=module -e 'await import("@mariozechner/pi-ai/oauth"); console.log("pi-ai oauth import ok")'
-                  ${pkg}/bin/openclaw skills list >/dev/null
-                  rg -q 'LD_LIBRARY_PATH' ${pkg}/bin/openclaw
-                  rg -q 'libcap' ${pkg}/bin/openclaw
-                  touch "$out"
-                '';
-              }
-            else
-              { };
         in
-        buildChecks // openclawSmoke;
+        buildChecks;
 
       mkApps =
         system:
